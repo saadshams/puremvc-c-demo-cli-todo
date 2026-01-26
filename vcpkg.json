@@ -1,0 +1,9 @@
+{
+  "name": "todo",
+  "version": "1.0.0",
+  "maintainers": ["Saad Shams <saad.shams@puremvc.org>"],
+  "description": "PureMVC C Demo: Todo Command Line Application",
+  "dependencies": [
+    "puremvc"
+  ]
+}
