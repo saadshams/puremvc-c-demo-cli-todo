@@ -20,15 +20,15 @@ int main() {
 
 void test_list() {
     const char *error = NULL;
-    struct CLI *cli = todo_cli_new(&error);
+    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo", "list"};
-    struct Command command = cli->parse(2, argv, &error);
+    struct Command command = cli.parse(2, argv, &error);
 
     assert(strcmp(command.subCommand.name, "list") == 0);
     assert(command.subCommand.value == NULL);
 
     char *argv2[] = {"todo", "list", "--a"};
-    command = cli->parse(3, argv2, &error);
+    command = cli.parse(3, argv2, &error);
     assert(strcmp(command.subCommand.name, "list") == 0);
     assert(command.subCommand.value == NULL);
     assert(strcmp(command.options[0].name, "--a") == 0);
@@ -37,9 +37,9 @@ void test_list() {
 
 void test_add() {
     const char *error = NULL;
-    struct CLI *cli = todo_cli_new(&error);
+    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo", "add", "Buy milk"};
-    struct Command command = cli->parse(3, argv, &error);
+    struct Command command = cli.parse(3, argv, &error);
 
     assert(strcmp(command.subCommand.name, "add") == 0);
     assert(strcmp(command.subCommand.value, "Buy milk") == 0);
@@ -47,15 +47,15 @@ void test_add() {
 
 void test_edit() {
     const char *error = NULL;
-    struct CLI *cli = todo_cli_new(&error);
+    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo", "edit", "21"};
-    struct Command command = cli->parse(3, argv, &error);
+    struct Command command = cli.parse(3, argv, &error);
 
     assert(strcmp(command.subCommand.name, "edit") == 0);
     assert(strcmp(command.subCommand.value, "21") == 0);
 
     char *argv2[] = {"todo", "edit", "21", "--title", "Water the plants"};
-    command = cli->parse(5, argv2, &error);
+    command = cli.parse(5, argv2, &error);
 
     assert(strcmp(command.subCommand.name, "edit") == 0);
     assert(strcmp(command.subCommand.value, "21") == 0);
@@ -64,7 +64,7 @@ void test_edit() {
     assert(strcmp(command.options[0].value, "Water the plants") == 0);
 
     char *argv3[] = {"todo", "edit", "21", "--title", "Water the plants", "--completed"};
-    command = cli->parse(6, argv3, &error);
+    command = cli.parse(6, argv3, &error);
 
     assert(strcmp(command.subCommand.name, "edit") == 0);
     assert(strcmp(command.subCommand.value, "21") == 0);
@@ -78,15 +78,15 @@ void test_edit() {
 
 void test_delete() {
     const char *error = NULL;
-    struct CLI *cli = todo_cli_new(&error);
+    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo", "delete", "42"};
-    struct Command command = cli->parse(3, argv, &error);
+    struct Command command = cli.parse(3, argv, &error);
 
     assert(strcmp(command.subCommand.name, "delete") == 0);
     assert(strcmp(command.subCommand.value, "42") == 0);
 
     char *argv2[] = {"todo", "delete", "--all", "--force"};
-    command = cli->parse(4, argv2, &error);
+    command = cli.parse(4, argv2, &error);
 
     assert(strcmp(command.subCommand.name, "delete") == 0);
     assert(command.subCommand.value == NULL);
@@ -100,21 +100,21 @@ void test_delete() {
 
 void test_help() {
     const char *error = NULL;
-    struct CLI *cli = todo_cli_new(&error);
+    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo", "--help"};
-    struct Command command = cli->parse(2, argv, &error);
+    struct Command command = cli.parse(2, argv, &error);
 
     assert(strcmp(command.options[0].name, "--help") == 0);
     assert(strcmp(command.options[0].value, "true") == 0);
 
     char *argv2[] = {"todo", "-h"};
-    command = cli->parse(2, argv2, &error);
+    command = cli.parse(2, argv2, &error);
 
     assert(strcmp(command.options[0].name, "-h") == 0);
     assert(strcmp(command.options[0].value, "true") == 0);
 
     char *argv3[] = {"todo", "list", "Buy milk", "-h"};
-    command = cli->parse(4, argv3, &error);
+    command = cli.parse(4, argv3, &error);
 
     assert(strcmp(command.subCommand.name, "list") == 0);
     assert(strcmp(command.subCommand.value, "Buy milk") == 0);
@@ -122,7 +122,7 @@ void test_help() {
     assert(strcmp(command.options[0].value, "true") == 0);
 
     char *argv4[] = {"todo", "list", "Buy milk", "--help"};
-    command = cli->parse(4, argv4, &error);
+    command = cli.parse(4, argv4, &error);
 
     assert(strcmp(command.options[0].name, "--help") == 0);
     assert(strcmp(command.options[0].value, "true") == 0);
@@ -130,9 +130,9 @@ void test_help() {
 
 void test_version() {
     const char *error = NULL;
-    struct CLI *cli = todo_cli_new(&error);
+    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo", "--version"};
-    struct Command command = cli->parse(2, argv, &error);
+    struct Command command = cli.parse(2, argv, &error);
 
     assert(strcmp(command.options[0].name, "--version") == 0);
     assert(strcmp(command.options[0].value, "true") == 0);
@@ -141,18 +141,18 @@ void test_version() {
 void test_no_command() {
     const char *error = NULL;
 
-    struct CLI *cli = todo_cli_new(&error);
+    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo"};
-    cli->parse(1, argv, &error);
+    cli.parse(1, argv, &error);
 
     assert(error != NULL);
 }
 
 void test_max_options() {
     const char *error = NULL;
-    struct CLI *cli = todo_cli_new(&error);
+    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo", "--option1", "--option2", "--option3", "--option4", "--option5", "--option6"};
-    struct Command command = cli->parse(7, argv, &error); // max options 5
+    struct Command command = cli.parse(7, argv, &error); // max options 5
 
     assert(strcmp(command.options[0].name, "--option1") == 0);
     assert(strcmp(command.options[0].value, "true") == 0);
