@@ -16,7 +16,7 @@ static void add(struct IProxy *self, struct Command *command) {
 
 }
 
-// Function pointer implementation
+// Function pointer implementation for demonstration
 static void edit(struct IProxy *self, struct Command *command) {
 
 }
