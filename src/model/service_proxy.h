@@ -5,17 +5,12 @@
 
 #define SERVICE_PROXY_NAME "service_proxy"
 
-struct ServiceProxy {
-    struct IProxy base;
+void todo_service_proxy_list(struct IProxy *self, struct Command *command);
 
-    const char* name;
-    void* data;
+void todo_service_proxy_add(struct IProxy *self, struct Command *command);
 
-    void (*list)(struct IProxy *self, struct Command *command);
-    void (*add)(struct IProxy *self, struct Command *command);
-    void (*edit)(struct IProxy *self, struct Command *command);
-};
+void todo_service_proxy_edit(struct IProxy *self, struct Command *command);
 
-static void todo_service_proxy_delete(struct IProxy *self, struct Command *command);
+void todo_service_proxy_delete(struct IProxy *self, struct Command *command);
 
 struct IProxy *todo_service_proxy_new(const char **error);

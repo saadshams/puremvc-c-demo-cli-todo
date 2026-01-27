@@ -1,6 +1,7 @@
-#include "service_command.h"
-
 #include <stdio.h>
+
+#include "service_command.h"
+#include "../model/service_proxy.h"
 
 static void execute(const struct ICommand *self, struct INotification *notification, const char **error) {
     printf("service execute");
