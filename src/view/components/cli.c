@@ -1,6 +1,6 @@
 #include "cli.h"
 
-struct Command parse(int argc, char **argv, const char **error) {
+static struct Command parse(int argc, char **argv, const char **error) {
     struct Command command = {0};
 
     if (argc < 2) {
@@ -38,6 +38,10 @@ struct Command parse(int argc, char **argv, const char **error) {
     }
 
     return command;
+}
+
+struct Command todo_cli_parse(int argc, char **argv, const char **error) {
+    return parse(argc, argv, error);
 }
 
 struct CLI todo_cli_new() {
