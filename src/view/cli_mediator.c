@@ -1,15 +1,16 @@
+#include "../application_facade.h"
 #include "cli_mediator.h"
 
-#include <stdio.h>
-
 static void onParse(struct IMediator *self, struct Command *command) {
-    printf("on parse");
+    const char *error = NULL;
+    const struct IFacade *facade = self->notifier->getFacade(self->notifier, &error);
+    facade->sendNotification(facade, SERVICE, command, NULL, &error);
 }
 
 static void onRegister(struct IMediator *self) {
     const char *error = NULL;
     struct CLI *cli = self->getComponent(self);
-    cli->setDelegate(cli, self, (void (*)(void *, struct Command *))onParse);
+    cli->setDelegate(cli, self, (void (*)(void *, struct Command *)) onParse);
     cli->parse(cli, &error);
 }
 

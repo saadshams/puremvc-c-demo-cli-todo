@@ -5,10 +5,12 @@
 struct CLI {
     int argc;
     char **argv;
-    void (*delegate)(void *context, struct Command *command);
+
     void *context;
-    void (*parse)(const struct CLI *self, const char **error);
+    void (*delegate)(void *context, struct Command *command);
     void (*setDelegate)(struct CLI *self, void *context, void (*delegate)(void *context, struct Command *command));
+
+    void (*parse)(const struct CLI *self, const char **error);
 };
 
 struct CLI *todo_cli_new(int argc, char **argv, const char **error);

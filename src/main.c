@@ -9,6 +9,7 @@ int main(int argc, char **argv) {
 
     struct IFacade *facade = todo_facade_getInstance("employee_admin", &error);
     facade->initializeFacade(facade, &error);
+
     todo_startup(facade, cli, &error);
 
     return 0;
