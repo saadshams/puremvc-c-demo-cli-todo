@@ -7,7 +7,9 @@ static void execute(const struct ICommand *self, struct INotification *notificat
     struct CLI *cli = (struct CLI *) notification->getBody(notification);
 
     const struct IFacade *facade = self->notifier->getFacade(self->notifier, error);
-    facade->registerProxy(facade, todo_service_proxy_new(error), error);
+
+    struct IProxy *proxy = todo_service_proxy_new(error);
+    facade->registerProxy(facade, proxy, error);
     facade->registerMediator(facade, todo_cli_mediator_new(cli, error), error);
 }
 

@@ -6,9 +6,9 @@ struct CLI {
     int argc;
     char **argv;
 
-    void *context;
-    void (*delegate)(void *context, struct Command *command);
-    void (*setDelegate)(struct CLI *self, void *context, void (*delegate)(void *context, struct Command *command));
+    const void *context;
+    void (*delegate)(const void *context, struct Command *command);
+    void (*setDelegate)(struct CLI *self, const void *context, void (*delegate)(const void *context, struct Command *command));
 
     void (*parse)(const struct CLI *self, const char **error);
 };

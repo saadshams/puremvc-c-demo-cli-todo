@@ -31,18 +31,20 @@ static void parse(const struct CLI *self, const char **error) {
                 command->count++;
                 i += 1;
             }
-        } else {
-            command->extra = self->argv[i];
-            i += 1;
         }
+    }
+
+    if (i < self->argc) {
+        command->extra = self->argv[i];
+        i += 1;
     }
 
     self->delegate(self->context, command);
 }
 
-static void setDelegate(struct CLI *self, void *context, void (*delegate)(void *context, struct Command *command)) {
-    self->delegate = delegate;
+static void setDelegate(struct CLI *self, const void *context, void (*delegate)(const void *context, struct Command *command)) {
     self->context = context;
+    self->delegate = delegate;
 }
 
 static struct CLI *init(struct CLI *cli) {
