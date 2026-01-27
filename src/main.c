@@ -1,16 +1,15 @@
 #include <stdio.h>
 
+#include "application_facade.h"
 #include "view/components/cli.h"
 
 int main(int argc, char **argv) {
-    struct CLI cli = todo_cli_new();
-
     const char *error = NULL;
-    // struct Command command = cli.parse(argc, argv, &error);
-    struct Command command = todo_cli_parse(argc, argv, &error);
-    if (error != NULL) return printf("%s\n", error);
+    struct CLI *cli = todo_cli_new(argc, argv, &error);
 
-    printf("%s", command.subCommand.name);
+    struct IFacade *facade = todo_facade_getInstance("employee_admin", &error);
+    facade->initializeFacade(facade, &error);
+    todo_startup(facade, cli, &error);
 
     return 0;
 }
