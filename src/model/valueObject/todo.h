@@ -2,8 +2,7 @@
 
 #include <stdbool.h>
 
-#define MAX_TODOS        5u
-// #define MAX_TODOS        32u
+#define MAX_TODOS        32u
 #define TODO_TITLE_MAX   64u
 
 struct Todo {
