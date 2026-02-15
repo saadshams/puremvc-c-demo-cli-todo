@@ -1,13 +1,10 @@
-#include <stdio.h>
-
 #include "service_proxy.h"
 
-static void onRegister(struct IProxy *self) {
-    printf("onRegister: Service Proxy\n");
-}
+#include <stdio.h>
 
 static void list(struct IProxy *self, struct Command *command) {
     // struct ServiceProxy *serviceProxy = (struct ServiceProxy *) self;
+    printf("list\n");
 }
 
 static void add(struct IProxy *self, struct Command *command) {
@@ -24,12 +21,11 @@ static void delete(struct IProxy *self, struct Command *command) {
 
 struct IProxy *service_proxy_init(void *buffer, const char *name, void *data) {
     struct IProxy *proxy = puremvc_proxy_init(buffer, name, data);
-    proxy->onRegister = onRegister; // override
     return proxy;
 }
 
-struct ServiceProxy *service_proxy_bind(struct ServiceProxy *serviceProxy, struct IProxy *proxy) {
-    serviceProxy->super = proxy;
+struct ServiceProxy *service_proxy_bind(struct ServiceProxy *serviceProxy, struct IProxy *super) {
+    serviceProxy->super = super;
 
     serviceProxy->list = list;
     serviceProxy->add = add;

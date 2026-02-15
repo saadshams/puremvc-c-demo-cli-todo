@@ -16,4 +16,4 @@ struct ServiceProxy {
 
 struct IProxy *service_proxy_init(void *buffer, const char *name, void *data);
 
-struct ServiceProxy *service_proxy_bind(struct ServiceProxy *serviceProxy, struct IProxy *proxy);
+struct ServiceProxy *service_proxy_bind(struct ServiceProxy *serviceProxy, struct IProxy *super);

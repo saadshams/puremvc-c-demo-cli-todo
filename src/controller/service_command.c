@@ -8,9 +8,8 @@ static void execute(const struct ICommand *self, struct INotification *notificat
 
     const struct IFacade *facade = self->getNotifier(self)->getFacade(self->getNotifier(self));
 
-    struct IProxy *base = facade->retrieveProxy(facade, ServiceProxy_NAME);
-    const struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, base);
-
+    struct IProxy *super = facade->retrieveProxy(facade, ServiceProxy_NAME);
+    const struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
     proxy->list(proxy->super, notification->getBody(notification));
 
     printf("service command end\n");

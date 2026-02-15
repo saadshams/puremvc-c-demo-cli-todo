@@ -1,8 +1,6 @@
 #include "../application_facade.h"
 #include "service_mediator.h"
 
-#include <stdio.h>
-
 static void onParse(const struct IMediator *self, struct Command *command) {
     const struct INotifier *notifier = self->getNotifier(self);
     const struct IFacade *facade = notifier->getFacade(notifier);
@@ -10,7 +8,6 @@ static void onParse(const struct IMediator *self, struct Command *command) {
 }
 
 static void onRegister(struct IMediator *self) {
-    printf("onRegister: Service Mediator\n");
     struct Service *service = self->getComponent(self);
     service->setDelegate(service, self, (void (*)(const void *, struct Command *)) onParse);
 }
