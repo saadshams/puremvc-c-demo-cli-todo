@@ -2,15 +2,15 @@
 
 #include "puremvc/puremvc.h"
 
-#include "view/components/cli.h"
+#include "view/components/service.h"
 
 #define STARTUP "startup"
 #define SERVICE "service"
 
 struct ApplicationFacade {
-    struct IFacade *base;
+    struct IFacade *super;
+
+    void (*startup)(struct IFacade *self, struct Service *cli);
 };
 
-struct IFacade *todo_facade_getInstance(const char *key, const char **error);
-
-void todo_startup(const struct IFacade *self, struct CLI *cli, const char **error);
+struct IFacade *getInstance(struct ApplicationFacade *appFacade, struct FacadeMap **facadeMap, const char *key);

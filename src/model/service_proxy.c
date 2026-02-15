@@ -3,27 +3,38 @@
 #include "service_proxy.h"
 
 static void onRegister(struct IProxy *self) {
-    printf("onRegister\n");
+    printf("onRegister: Service Proxy\n");
 }
 
-void todo_service_proxy_list(struct IProxy *self, struct Command *command) {
-
+static void list(struct IProxy *self, struct Command *command) {
+    // struct ServiceProxy *serviceProxy = (struct ServiceProxy *) self;
 }
 
-void todo_service_proxy_add(struct IProxy *self, struct Command *command) {
-
-}
-
-void todo_service_proxy_edit(struct IProxy *self, struct Command *command) {
+static void add(struct IProxy *self, struct Command *command) {
 
 }
 
-void todo_service_proxy_delete(struct IProxy *self, struct Command *command) {
+static void edit(struct IProxy *self, struct Command *command) {
 
 }
 
-struct IProxy *todo_service_proxy_new(const char **error) {
-    struct IProxy *proxy = puremvc_proxy_new(SERVICE_PROXY_NAME, NULL, error);
+static void delete(struct IProxy *self, struct Command *command) {
+
+}
+
+struct IProxy *service_proxy_init(void *buffer, const char *name, void *data) {
+    struct IProxy *proxy = puremvc_proxy_init(buffer, name, data);
     proxy->onRegister = onRegister; // override
     return proxy;
+}
+
+struct ServiceProxy *service_proxy_bind(struct ServiceProxy *serviceProxy, struct IProxy *proxy) {
+    serviceProxy->super = proxy;
+
+    serviceProxy->list = list;
+    serviceProxy->add = add;
+    serviceProxy->edit = edit;
+    serviceProxy->delete = delete;
+
+    return serviceProxy;
 }

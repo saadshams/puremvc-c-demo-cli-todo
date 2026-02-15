@@ -2,7 +2,7 @@
 
 #include <stdbool.h>
 
-struct Todo {
+struct todo {
     unsigned int id;
     char *title;
     bool completed;

@@ -1,16 +1,19 @@
 #pragma once
 
 #include "puremvc/puremvc.h"
-#include "valueObject/Command.h"
+#include "valueObject/command.h"
 
-#define SERVICE_PROXY_NAME "service_proxy"
+#define ServiceProxy_NAME "ServiceProxy"
 
-void todo_service_proxy_list(struct IProxy *self, struct Command *command);
+struct ServiceProxy {
+    struct IProxy *super;
 
-void todo_service_proxy_add(struct IProxy *self, struct Command *command);
+    void (*list)(struct IProxy *self, struct Command *command);
+    void (*add)(struct IProxy *self, struct Command *command);
+    void (*edit)(struct IProxy *self, struct Command *command);
+    void (*delete)(struct IProxy *self, struct Command *command);
+};
 
-void todo_service_proxy_edit(struct IProxy *self, struct Command *command);
+struct IProxy *service_proxy_init(void *buffer, const char *name, void *data);
 
-void todo_service_proxy_delete(struct IProxy *self, struct Command *command);
-
-struct IProxy *todo_service_proxy_new(const char **error);
+struct ServiceProxy *service_proxy_bind(struct ServiceProxy *serviceProxy, struct IProxy *proxy);

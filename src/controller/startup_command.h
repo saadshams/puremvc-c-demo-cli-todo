@@ -2,4 +2,4 @@
 
 #include "puremvc/puremvc.h"
 
-struct ICommand *todo_startup_command_new(const char **error);
+struct ICommand *startup_command_init(void *buffer);

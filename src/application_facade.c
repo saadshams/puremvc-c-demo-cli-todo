@@ -3,21 +3,25 @@
 #include "controller/service_command.h"
 #include "controller/startup_command.h"
 
-static void (*initializeController_)(struct IFacade *self, const char **error);
+static void (*super_initializeController)(struct IFacade *self, struct IController *controller);
 
-static void initializeController(struct IFacade *self, const char **error) {
-    initializeController_(self, error); // call super
-    self->registerCommand(self, STARTUP, todo_startup_command_new, error);
-    self->registerCommand(self, SERVICE, todo_service_command_new, error);
+static void initializeController(struct IFacade *self, struct IController *controller) {
+    super_initializeController(self, controller); // call super
+    self->registerCommand(self, STARTUP, startup_command_init);
+    self->registerCommand(self, SERVICE, service_command_init);
 }
 
-struct IFacade *todo_facade_getInstance(const char *key, const char **error) {
-    struct IFacade *facade = puremvc_facade_getInstance(key, puremvc_facade_new, error);
-    initializeController_ = facade->initializeController; // store super
-    facade->initializeController = initializeController; // override super
+static void startup(struct IFacade *self, struct Service *service) {
+    self->sendNotification(self, STARTUP, service, NULL);
+}
+
+struct IFacade *getInstance(struct ApplicationFacade *appFacade, struct FacadeMap **facadeMap, const char *key) {
+    struct IFacade *facade = puremvc_facade_getInstance(facadeMap, key);
+    super_initializeController = facade->initializeController;
+    facade->initializeController = initializeController; // override
+
+    appFacade->super = facade;
+    appFacade->startup = startup;
+
     return facade;
-}
-
-void todo_startup(const struct IFacade *self, struct CLI *cli, const char **error) {
-    self->sendNotification(self, STARTUP, cli, NULL, error);
 }

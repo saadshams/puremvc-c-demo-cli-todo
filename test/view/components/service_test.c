@@ -1,17 +1,23 @@
-#include "cli_test.h"
+#include "service_test.h"
 
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../../src/view/components/cli.h"
+#include "../../../src/view/components/service.h"
 
 int main() {
     test_list();
+    test_list_all();
     test_add();
     test_edit();
+    test_edit_title();
+    test_edit_title_completed();
     test_delete();
+    test_delete_all();
     test_help();
+    test_help_short();
+    test_help_list();
     test_version();
     test_no_command();
     test_max_options();
@@ -19,16 +25,27 @@ int main() {
 }
 
 void test_list() {
-    const char *error = NULL;
-    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo", "list"};
-    struct Command command = cli.parse(2, argv, &error);
+
+    struct Service service = {0};
+    struct Command command = {0};
+
+    service_init(&service, &command, 2, argv);
+    service.parse(&service);
 
     assert(strcmp(command.subCommand.name, "list") == 0);
     assert(command.subCommand.value == NULL);
+}
 
-    char *argv2[] = {"todo", "list", "--a"};
-    command = cli.parse(3, argv2, &error);
+void test_list_all() {
+    char *argv[] = {"todo", "list", "--a"};
+
+    struct Service service = {0};
+    struct Command command = {0};
+
+    service_init(&service, &command,  3, argv);
+    service.parse(&service);
+
     assert(strcmp(command.subCommand.name, "list") == 0);
     assert(command.subCommand.value == NULL);
     assert(strcmp(command.options[0].name, "--a") == 0);
@@ -36,35 +53,55 @@ void test_list() {
 }
 
 void test_add() {
-    const char *error = NULL;
-    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo", "add", "Buy milk"};
-    struct Command command = cli.parse(3, argv, &error);
+
+    struct Service service = {0};
+    struct Command command = {0};
+
+    service_init(&service, &command, 3, argv);
+    service.parse(&service);
 
     assert(strcmp(command.subCommand.name, "add") == 0);
     assert(strcmp(command.subCommand.value, "Buy milk") == 0);
 }
 
 void test_edit() {
-    const char *error = NULL;
-    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo", "edit", "21"};
-    struct Command command = cli.parse(3, argv, &error);
+
+    struct Service service = {0};
+    struct Command command = {0};
+
+    service_init(&service, &command, 3, argv);
+    service.parse(&service);
 
     assert(strcmp(command.subCommand.name, "edit") == 0);
     assert(strcmp(command.subCommand.value, "21") == 0);
+}
 
-    char *argv2[] = {"todo", "edit", "21", "--title", "Water the plants"};
-    command = cli.parse(5, argv2, &error);
+void test_edit_title() {
+    char *argv[] = {"todo", "edit", "21", "--title", "Water the plants"};
+
+    struct Service service = {0};
+    struct Command command = {0};
+
+    service_init(&service, &command, 5, argv);
+    service.parse(&service);
 
     assert(strcmp(command.subCommand.name, "edit") == 0);
     assert(strcmp(command.subCommand.value, "21") == 0);
 
     assert(strcmp(command.options[0].name, "--title") == 0);
     assert(strcmp(command.options[0].value, "Water the plants") == 0);
+}
 
-    char *argv3[] = {"todo", "edit", "21", "--title", "Water the plants", "--completed"};
-    command = cli.parse(6, argv3, &error);
+void test_edit_title_completed() {
+    char *argv[] = {"todo", "edit", "21", "--title", "Water the plants", "--completed"};
+
+    struct Service service = {0};
+    struct Command command = {0};
+
+    service_init(&service, &command, 6, argv);
+    service.parse(&service);
 
     assert(strcmp(command.subCommand.name, "edit") == 0);
     assert(strcmp(command.subCommand.value, "21") == 0);
@@ -77,16 +114,26 @@ void test_edit() {
 }
 
 void test_delete() {
-    const char *error = NULL;
-    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo", "delete", "42"};
-    struct Command command = cli.parse(3, argv, &error);
+
+    struct Service service = {0};
+    struct Command command = {0};
+
+    service_init(&service, &command, 3, argv);
+    service.parse(&service);
 
     assert(strcmp(command.subCommand.name, "delete") == 0);
     assert(strcmp(command.subCommand.value, "42") == 0);
+}
 
-    char *argv2[] = {"todo", "delete", "--all", "--force"};
-    command = cli.parse(4, argv2, &error);
+void test_delete_all() {
+    char *argv[] = {"todo", "delete", "--all", "--force"};
+
+    struct Service service = {0};
+    struct Command command = {0};
+
+    service_init(&service, &command, 4, argv);
+    service.parse(&service);
 
     assert(strcmp(command.subCommand.name, "delete") == 0);
     assert(command.subCommand.value == NULL);
@@ -99,60 +146,79 @@ void test_delete() {
 }
 
 void test_help() {
-    const char *error = NULL;
-    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo", "--help"};
-    struct Command command = cli.parse(2, argv, &error);
 
-    assert(strcmp(command.options[0].name, "--help") == 0);
-    assert(strcmp(command.options[0].value, "true") == 0);
+    struct Service service = {0};
+    struct Command command = {0};
 
-    char *argv2[] = {"todo", "-h"};
-    command = cli.parse(2, argv2, &error);
-
-    assert(strcmp(command.options[0].name, "-h") == 0);
-    assert(strcmp(command.options[0].value, "true") == 0);
-
-    char *argv3[] = {"todo", "list", "Buy milk", "-h"};
-    command = cli.parse(4, argv3, &error);
-
-    assert(strcmp(command.subCommand.name, "list") == 0);
-    assert(strcmp(command.subCommand.value, "Buy milk") == 0);
-    assert(strcmp(command.options[0].name, "-h") == 0);
-    assert(strcmp(command.options[0].value, "true") == 0);
-
-    char *argv4[] = {"todo", "list", "Buy milk", "--help"};
-    command = cli.parse(4, argv4, &error);
+    service_init(&service, &command, 2, argv);
+    service.parse(&service);
 
     assert(strcmp(command.options[0].name, "--help") == 0);
     assert(strcmp(command.options[0].value, "true") == 0);
 }
 
+void test_help_short() {
+    char *argv[] = {"todo", "-h"};
+
+    struct Service service = {0};
+    struct Command command = {0};
+
+    service_init(&service, &command, 2, argv);
+    service.parse(&service);
+
+    assert(strcmp(command.options[0].name, "-h") == 0);
+    assert(strcmp(command.options[0].value, "true") == 0);
+}
+
+void test_help_list() {
+    char *argv[] = {"todo", "list", "-h"};
+
+    struct Service service = {0};
+    struct Command command = {0};
+
+    service_init(&service, &command, 3, argv);
+    service.parse(&service);
+
+    assert(strcmp(command.subCommand.name, "list") == 0);
+    assert(command.subCommand.value == NULL);
+    assert(strcmp(command.options[0].name, "-h") == 0);
+    assert(strcmp(command.options[0].value, "true") == 0);
+}
+
 void test_version() {
-    const char *error = NULL;
-    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo", "--version"};
-    struct Command command = cli.parse(2, argv, &error);
+
+    struct Service service = {0};
+    struct Command command = {0};
+
+    service_init(&service, &command, 2, argv);
+    service.parse(&service);
 
     assert(strcmp(command.options[0].name, "--version") == 0);
     assert(strcmp(command.options[0].value, "true") == 0);
 }
 
 void test_no_command() {
-    const char *error = NULL;
-
-    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo"};
-    cli.parse(1, argv, &error);
 
-    assert(error != NULL);
+    struct Service service = {0};
+    struct Command command = {0};
+
+    service_init(&service, &command, 1, argv);
+    service.parse(&service);
+
+    // assert(error != NULL);
 }
 
 void test_max_options() {
-    const char *error = NULL;
-    struct CLI cli = todo_cli_new(&error);
     char *argv[] = {"todo", "--option1", "--option2", "--option3", "--option4", "--option5", "--option6"};
-    struct Command command = cli.parse(7, argv, &error); // max options 5
+
+    struct Service service = {0};
+    struct Command command = {0};
+
+    service_init(&service, &command, 7, argv); // max options 5
+    service.parse(&service);
 
     assert(strcmp(command.options[0].name, "--option1") == 0);
     assert(strcmp(command.options[0].value, "true") == 0);

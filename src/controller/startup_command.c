@@ -1,19 +1,17 @@
 #include "startup_command.h"
 
 #include "../model/service_proxy.h"
-#include "../view/cli_mediator.h"
+#include "../view/service_mediator.h"
 
-static void execute(const struct ICommand *self, struct INotification *notification, const char **error) {
-    struct CLI *cli = (struct CLI *) notification->getBody(notification);
+static void execute(const struct ICommand *self, struct INotification *notification) {
+    const struct IFacade *facade = self->getNotifier(self)->getFacade(self->getNotifier(self));
 
-    const struct IFacade *facade = self->notifier->getFacade(self->notifier, error);
-
-    facade->registerProxy(facade, todo_service_proxy_new(error), error);
-    facade->registerMediator(facade, todo_cli_mediator_new(cli, error), error);
+    facade->registerProxy(facade, service_proxy_init, ServiceProxy_NAME, NULL);
+    facade->registerMediator(facade, service_mediator_init, ServiceMediator_NAME, notification->getBody(notification));
 }
 
-struct ICommand *todo_startup_command_new(const char **error) {
-    struct ICommand *command = puremvc_simple_command_new(error);
+struct ICommand *startup_command_init(void *buffer) {
+    struct ICommand *command = puremvc_simple_command_init(buffer);
     command->execute = execute; // override
     return command;
 }
