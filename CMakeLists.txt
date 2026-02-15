@@ -13,6 +13,12 @@ add_library(core
         src/view/service_mediator.c
         src/view/components/service.c)
 
+# Compiler warnings (cross-platform, strict)
+target_compile_options(core
+    PRIVATE
+        $<$<C_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Werror -fsanitize=address,undefined,leak -fno-omit-frame-pointer>
+        $<$<C_COMPILER_ID:MSVC>:/W4 /WX>)
+
 add_subdirectory("../puremvc-c-multicore-framework2" puremvc)
 target_link_libraries(core PRIVATE puremvc)
 

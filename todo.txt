@@ -1,0 +1,5 @@
+1|0|Buy groceries
+2|0|Water the plants
+3|1|Read a book
+4|0|Write a report
+5|1|Watch a movie
