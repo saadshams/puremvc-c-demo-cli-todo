@@ -32,12 +32,12 @@ int main(int argc, char **argv) {
     struct IController *controller = puremvc_controller_getInstance(controllerMap, name);
     controller->initializeController(controller, view, commandMap);
 
-    // 4. Allocate Facade (super)
+    // 4. Allocate Facade
     struct FacadeMap **facadeMap = (struct FacadeMap *[]) { &(struct FacadeMap){ .facade = alloca(puremvc_facade_size()) }, NULL };
     struct IFacade *super = application_facade_getInstance(facadeMap, name);
     super->initializeFacade(super, model, view, controller);
 
-    // 5. Link ApplicationFacade to super
+    // 5. Link ApplicationFacade's super to Facade
     const struct ApplicationFacade *facade = application_facade_bind(&(struct ApplicationFacade){}, super);
 
     // 5. Allocate Service Component
