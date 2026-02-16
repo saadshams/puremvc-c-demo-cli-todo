@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     struct IFacade *super = application_facade_getInstance(facadeMap, name);
     super->initializeFacade(super, model, view, controller);
 
-    // 5. Link ApplicationFacade's super to Facade
+    // 5. Init ApplicationFacade and bind its super to Facade
     const struct ApplicationFacade *facade = application_facade_bind(&(struct ApplicationFacade){}, super);
 
     // 5. Allocate Service Component

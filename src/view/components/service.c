@@ -3,7 +3,7 @@
 
 #include "service.h"
 
-static void parse(const struct Service *self) {
+static void todo_parseObject(const struct Service *self) {
     // todo pass the error to command
     // if (self->argc < 2) return *error = "Usage: todo <command> [options]", (void)0;
 
@@ -54,6 +54,6 @@ void service_init(struct Service *service, struct Command *command, int argc, ch
     service->argc = argc;
     service->argv = argv;
 
-    service->parse = parse;
+    service->parse = todo_parseObject;
     service->setDelegate = setDelegate;
 }

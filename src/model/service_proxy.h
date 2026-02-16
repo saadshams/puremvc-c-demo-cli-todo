@@ -1,15 +1,19 @@
 #pragma once
 
-#include "puremvc/puremvc.h"
 #include "valueObject/command.h"
-#include "valueObject/todo.h"
+
+#include "puremvc/puremvc.h"
 
 #define ServiceProxy_NAME "ServiceProxy"
 
 struct ServiceProxy {
     struct IProxy *super;
 
-    bool (*load)(struct ServiceProxy *self, const char *path, struct Todo *todos);
+    struct IStorage *storage; // Strategy Pattern, Dependency Injection
+    const char *path;
+
+    bool (*read)(struct IProxy *self, struct Command *command);
+    bool (*write)(struct IProxy *self, struct Command *command);
     void (*list)(struct IProxy *self, struct Command *command);
     void (*add)(struct IProxy *self, struct Command *command);
     void (*edit)(struct IProxy *self, struct Command *command);

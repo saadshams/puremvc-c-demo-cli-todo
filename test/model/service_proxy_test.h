@@ -1,4 +1,7 @@
 #pragma once
 
-void reset();
-void testLoad();
+void resetTxt();
+void resetJSON();
+void testParsePointers();
+void testParseArray();
+void testStringify();

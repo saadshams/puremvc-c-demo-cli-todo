@@ -2,25 +2,12 @@
 
 #include <stdio.h>
 
-static bool load(struct ServiceProxy *self, const char *path, struct Todo *todos) {
-    char line[128];
-    size_t index = 0;
-    unsigned int completed;
+static bool read(struct IProxy *self, struct Command *command) {
+    return false;
+}
 
-    FILE* file = fopen(path, "r");
-    if (file == NULL) return false;
-
-    while (fgets(line, sizeof(line), file) != NULL && index < MAX_TODOS) {
-        struct Todo *todo = &todos[index];
-        if (sscanf(line, "%u|%u|%63[^\n]", &todo->id, &completed, todo->title) == 3) {
-            todo->completed = completed != 0u;
-            index++;
-        }
-    }
-    todos[index].id = 0u; // Sentinel
-
-    (void) fclose(file);
-    return true;
+static bool write(struct IProxy *self, struct Command *command) {
+    return false;
 }
 
 static void list(struct IProxy *self, struct Command *command) {
@@ -48,7 +35,8 @@ struct IProxy *service_proxy_init(void *buffer, const char *name, void *data) {
 struct ServiceProxy *service_proxy_bind(struct ServiceProxy *serviceProxy, struct IProxy *super) {
     serviceProxy->super = super;
 
-    serviceProxy->load = load;
+    serviceProxy->read = read;
+    serviceProxy->write = write;
     serviceProxy->list = list;
     serviceProxy->add = add;
     serviceProxy->edit = edit;

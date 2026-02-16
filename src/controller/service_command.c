@@ -1,7 +1,8 @@
-#include <stdio.h>
-
 #include "service_command.h"
 #include "../model/service_proxy.h"
+#include "../model/storage/todo_text.h"
+
+#include <stdio.h>
 
 static void execute(const struct ICommand *self, struct INotification *notification) {
     printf("service command\n");
@@ -9,7 +10,10 @@ static void execute(const struct ICommand *self, struct INotification *notificat
     const struct IFacade *facade = self->getNotifier(self)->getFacade(self->getNotifier(self));
 
     struct IProxy *super = facade->retrieveProxy(facade, ServiceProxy_NAME);
-    const struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
+    struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
+    struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt"); // Strategy Pattern, Dependency Injection
+    proxy->storage = storage;
+
     proxy->list(proxy->super, notification->getBody(notification));
 
     printf("service command end\n");
@@ -17,6 +21,6 @@ static void execute(const struct ICommand *self, struct INotification *notificat
 
 struct ICommand *service_command_init(void *buffer) {
     struct ICommand *command = puremvc_simple_command_init(buffer);
-    command->execute = execute;
+    command->execute = execute; // override
     return command;
 }

@@ -5,7 +5,8 @@
 
 static void beforeAll() {}
 static void beforeEach() {
-    reset();
+    resetTxt();
+    resetJSON();
 }
 static void afterEach() {}
 static void afterAll() {}
@@ -28,15 +29,17 @@ int main(void) {
     printf("\033[1;36m================================================\033[0m\n\n");
 
     beforeAll();
-    test("testLoad", testLoad);
+    test("testParse", testParsePointers);
+    test("testParse2", testParseArray);
+    test("testStringify", testStringify);
     afterAll();
 
     printf("\n\033[1;32m[DONE] All tests in suite finished.\033[0m\n");
     return 0;
 }
 
-void reset() {
-    FILE *file = fopen("../../todo.txt", "w");
+void resetTxt() {
+    FILE *file = fopen("../../todos.txt", "w");
     if (file == NULL) return;
 
     (void) fprintf(file, "1|0|Buy groceries\n");
@@ -48,15 +51,67 @@ void reset() {
     (void) fclose(file);
 }
 
-void testLoad() {
-    struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
-    struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
+void resetJSON() {
+    FILE *file = fopen("../../todos.json", "w");
+    if (file == NULL) return;
 
-    struct Todo todos[MAX_TODOS + 1] = {0};
+    (void) fprintf(file, "[\n");
+    (void) fprintf(file, "\t{\"id\": 1, \"title\": \"Buy groceries\", \"completed\": false},\n");
+    (void) fprintf(file, "\t{\"id\": 2, \"title\": \"Water the plants\", \"completed\": false},\n");
+    (void) fprintf(file, "\t{\"id\": 3, \"title\": \"Read a book\", \"completed\": true},\n");
+    (void) fprintf(file, "\t{\"id\": 4, \"title\": \"Write a report\", \"completed\": false},\n");
+    (void) fprintf(file, "\t{\"id\": 5, \"title\": \"Watch a movie\", \"completed\": true},\n");
+    (void) fprintf(file, "]\n");
 
-    proxy->load(proxy, "../../todo.txt", todos);
+    (void) fclose(file);
+}
 
-    for (size_t i = 0u; todos[i].id != 0u; i++) {
-        todo_print(&todos[i]);
+void testParsePointers() {
+    const char *json =
+        "["
+            "{\"id\":1,\"title\":\"Buy groceries\",\"completed\":false},"
+            "{\"id\":2,\"title\":\"Water the plants\",\"completed\":false},"
+            "{\"id\":3,\"title\":\"Read a book\",\"completed\":true}"
+        "]";
+
+    struct Todo *todos[] = { &(struct Todo){}, &(struct Todo){}, &(struct Todo){}, NULL };
+    const size_t count = todo_parsePointers(todos, json);
+
+    for (size_t i = 0; i < count; ++i) {
+        struct Todo *todo = todos[i];
+        printf("ID: %u | Title: %s | Completed: %s\n", todo->id, todo->title, todo->completed ? "true" : "false");
     }
+}
+
+void testParseArray() {
+    const char *json =
+    "["
+        "{\"id\":1,\"title\":\"Buy groceries\",\"completed\":false},"
+        "{\"id\":2,\"title\":\"Water the plants\",\"completed\":false},"
+        "{\"id\":3,\"title\":\"Read a book\",\"completed\":true}"
+    "]";
+
+    struct Todo todos[10];
+
+    size_t count = todo_parseArray(todos, 10, json);
+
+    for (size_t i = 0; i < count; i++) {
+        printf("%u. [%c] %s\n",
+               todos[i].id,
+               todos[i].completed ? 'x' : ' ',
+               todos[i].title);
+    }
+}
+
+void testStringify() {
+    struct Todo todo1 = {1, "Buy groceries", false};
+    struct Todo todo2 = {2, "Read a book", true};
+    struct Todo todo3 = {3, "Water plants", false};
+
+    struct Todo *todos[] = { &todo1, &todo2, &todo3, NULL };
+
+    char json[1024];
+    const size_t len = todo_stringifyPointers(todos, json, sizeof(json));
+
+    printf("JSON array (%zu chars):\n%s\n", len, json);
 }
