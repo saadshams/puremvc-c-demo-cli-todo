@@ -18,8 +18,8 @@ int main(int argc, char **argv) {
     // 2. Allocate View (ObserverMap, MediatorMap)
     struct ViewMap **viewMap = (struct ViewMap *[]) { &(struct ViewMap){ .view = alloca(puremvc_view_size()) }, NULL };
     struct ObserverMap **observerMap = (struct ObserverMap *[]) { // Notifications with Observers: STARTUP, SERVICE, SERVICE_RESULT
-        &(struct ObserverMap) { .observers = (struct IObserver *[]) { memset(alloca(puremvc_observer_size()), 0, puremvc_observer_size()), NULL } }, // STARTUP
-        &(struct ObserverMap) { .observers = (struct IObserver *[]) { memset(alloca(puremvc_observer_size()), 0, puremvc_observer_size()), NULL } }, // SERVICE
+        &(struct ObserverMap) { .observers = (struct IObserver *[]) { memset(alloca(puremvc_observer_size()), 0, puremvc_observer_size()), NULL } }, // STARTUP Observers
+        &(struct ObserverMap) { .observers = (struct IObserver *[]) { memset(alloca(puremvc_observer_size()), 0, puremvc_observer_size()), NULL } }, // SERVICE Observers
         NULL
     };
     struct MediatorMap **mediatorMap = (struct MediatorMap *[]) { &(struct MediatorMap){ .mediator = alloca(puremvc_mediator_size()) }, NULL }; // Mediator: ServiceMediator
@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 
     // 5. Allocate Service Component
     struct Service *service = &(struct Service) {};
-    struct Command *command = &(struct Command) {};
+    struct Argument *command = &(struct Argument) {};
     service_init(service, command, argc, argv);
 
     // 6. PureMVC Apparatus Startup and Link Service Component through a Mediator

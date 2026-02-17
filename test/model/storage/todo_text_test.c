@@ -32,9 +32,11 @@ int main(void) {
     printf("\033[1;36m================================================\033[0m\n\n");
 
     beforeAll();
-    // test("testRead", testRead);
-    // test("testWrite", testWrite);
+    test("testRead", testRead);
+    test("testWrite", testWrite);
     test("testAdd", testAdd);
+    test("testEdit", testEdit);
+    test("testDelete", testDelete);
     // test("testParse", testParsePointers);
     // test("testParse2", testParseArray);
     afterAll();
@@ -43,95 +45,136 @@ int main(void) {
     return 0;
 }
 
-void reset() {
-    FILE *file = fopen("../../todos.txt", "w");
-    if (file == NULL) return;
-
-    (void) fprintf(file, "1|0|Buy groceries\n");
-    (void) fprintf(file, "2|0|Water the plants\n");
-    (void) fprintf(file, "3|1|Read a book\n");
-    (void) fprintf(file, "4|0|Write a report\n");
-    (void) fprintf(file, "5|1|Watch a movie\n");
-
-    (void) fclose(file);
-}
-
 void testRead() {
-    struct Todo todos[6] = {};
+    struct Todo todos[MAX_TODOS] = {0};
 
     struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
-
-    if (storage->read(storage, todos, 6)) {
-        struct Todo expected[] = {
-            {1u, "Buy groceries", false},
-            {2u, "Water the plants", false},
-            {3u, "Read a book", true},
-            {4u, "Write a report", false},
-            {5u, "Watch a movie", true},
-        };
-
-        size_t count = sizeof(expected) / sizeof(expected[0]);
-        size_t i = 0u;
-        for (; i < count; i++) {
-            if (todos[i].id != expected[i].id) abort();
-            if (strcmp(todos[i].title, expected[i].title) != 0) abort();
-            if (todos[i].completed != expected[i].completed) abort();
-        }
-
-        if (i != count) abort();
-    } else {
-        fprintf(stderr, "Failed to read todos\n");
-        abort();
+    if (storage->read(storage, todos, MAX_TODOS) == false) {
+        fprintf(stderr, "Failed to read todos\n"); abort();
     }
-}
 
-void testWrite() {
-    struct Todo todos[] = {
+    struct Todo expected[] = {
         {1u, "Buy groceries", false},
         {2u, "Water the plants", false},
-        {3u, "Read a book", true}
+        {3u, "Read a book", true},
+        {4u, "Write a report", false},
+        {5u, "Watch a movie", true},
     };
 
-    struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
-
-    if (!storage->write(storage, todos, 3)) {
-        fprintf(stderr, "Failed to read todos\n");
-        abort();
-    }
-
-    struct Todo expected[3 + 1]; // VLA
-    memset(expected, 0, sizeof(expected)); // ✅ zero init safely
-
-    if (!storage->read(storage, expected, 3 + 1)) {
-        fprintf(stderr, "Failed to read todos back\n");
-        abort();
-    }
-
-    size_t actual_count = 0u;
-    while (expected[actual_count].id != 0u && actual_count < 3)
-        actual_count++;
-
-    const size_t expected_count = sizeof(todos) / sizeof(todos[0]);
-    if (actual_count != expected_count) { // check count
-        fprintf(stderr, "Todo count mismatch: expected %zu, got %zu\n", expected_count, actual_count);
-        abort();
-    }
-
+    size_t count = sizeof(expected) / sizeof(expected[0]);
     size_t i = 0u;
-    for (; i < expected_count; i++) {
+    for (; i < count; i++) {
         if (todos[i].id != expected[i].id) abort();
         if (strcmp(todos[i].title, expected[i].title) != 0) abort();
         if (todos[i].completed != expected[i].completed) abort();
     }
 }
 
+void testWrite() {
+    const struct Todo data[] = {
+        {1u, "Buy groceries", false},
+        {2u, "Water the plants", false},
+        {3u, "Read a book", true}
+    };
+
+    struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
+    if (storage->write(storage, data, MAX_TODOS) == false) {
+        fprintf(stderr, "Failed to read todos\n"); abort();
+    }
+
+    // assertions
+    struct Todo todos[MAX_TODOS] = {0};
+    if (storage->read(storage, todos, MAX_TODOS) == false) {
+        fprintf(stderr, "Failed to read todos\n"); abort();
+    }
+
+    const struct Todo expected[] = {
+        {1u, "Buy groceries", false},
+        {2u, "Water the plants", false},
+        {3u, "Read a book", true},
+    };
+
+    size_t count = sizeof(expected) / sizeof(expected[0]);
+    for (size_t i = 0; i < count; i++) {
+        if (todos[i].id != expected[i].id) abort();
+        if (strcmp(todos[i].title, expected[i].title) != 0) abort();
+        if (todos[i].completed != expected[i].completed) abort();
+    }
+}
 
 void testAdd() {
-    struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
+    struct Todo todos[MAX_TODOS] = {0};
 
+    struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
     storage->add(storage, "Finish homework");
-    // storage->edit(storage, 2, "Water the garden", true);
-    // storage->delete(storage, 1);
+    if (storage->read(storage, todos, MAX_TODOS) == false) {
+        fprintf(stderr, "Failed to read todos\n"); abort();
+    }
+
+    const struct Todo expected[] = {
+        {1u, "Buy groceries", false},
+        {2u, "Water the plants", false},
+        {3u, "Read a book", true},
+        {4u, "Write a report", false},
+        {5u, "Watch a movie", true},
+        {6u, "Finish homework", false},
+    };
+
+    size_t count = sizeof(expected) / sizeof(expected[0]);
+    for (size_t i = 0; i < count; i++) {
+        if (todos[i].id != expected[i].id) abort();
+        if (strcmp(todos[i].title, expected[i].title) != 0) abort();
+        if (todos[i].completed != expected[i].completed) abort();
+    }
+}
+
+void testEdit() {
+    struct Todo todos[MAX_TODOS] = {0};
+
+    struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
+    storage->edit(storage, 2, "Water the garden", true);
+    if (storage->read(storage, todos, MAX_TODOS) == false) {
+        fprintf(stderr, "Failed to read todos\n"); abort();
+    }
+
+    const struct Todo expected[] = {
+        {1u, "Buy groceries", false},
+        {2u, "Water the garden", true},
+        {3u, "Read a book", true},
+        {4u, "Write a report", false},
+        {5u, "Watch a movie", true},
+    };
+
+    size_t count = sizeof(expected) / sizeof(expected[0]);
+    for (size_t i = 0; i < count; i++) {
+        if (todos[i].id != expected[i].id) abort();
+        if (strcmp(todos[i].title, expected[i].title) != 0) abort();
+        if (todos[i].completed != expected[i].completed) abort();
+    }
+}
+
+void testDelete() {
+    struct Todo todos[MAX_TODOS] = {0};
+
+    struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
+    storage->delete(storage, 2);
+    if (storage->read(storage, todos, MAX_TODOS) == false) {
+        fprintf(stderr, "Failed to read todos\n"); abort();
+    }
+
+    const struct Todo expected[] = {
+        {1u, "Buy groceries", false},
+        {3u, "Read a book", true},
+        {4u, "Write a report", false},
+        {5u, "Watch a movie", true},
+    };
+
+    size_t count = sizeof(expected) / sizeof(expected[0]);
+    for (size_t i = 0; i < count; i++) {
+        if (todos[i].id != expected[i].id) abort();
+        if (strcmp(todos[i].title, expected[i].title) != 0) abort();
+        if (todos[i].completed != expected[i].completed) abort();
+    }
 }
 
 // void testParsePointers() {
@@ -170,3 +213,16 @@ void testAdd() {
 //                todos[i].title);
 //     }
 // }
+
+void reset() {
+    FILE *file = fopen("../../todos.txt", "w");
+    if (file == NULL) return;
+
+    (void) fprintf(file, "1|0|Buy groceries\n");
+    (void) fprintf(file, "2|0|Water the plants\n");
+    (void) fprintf(file, "3|1|Read a book\n");
+    (void) fprintf(file, "4|0|Write a report\n");
+    (void) fprintf(file, "5|1|Watch a movie\n");
+
+    (void) fclose(file);
+}

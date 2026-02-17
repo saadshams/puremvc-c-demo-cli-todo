@@ -4,7 +4,7 @@
 
 #include <stdbool.h>
 
-#define MAX_TODOS 5
+#define MAX_TODOS 10
 
 struct IStorage {
     bool (*read)(struct IStorage *self, struct Todo *out, size_t max);

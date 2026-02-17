@@ -69,12 +69,11 @@ static void list(struct IStorage *self) {
 }
 
 static bool add(struct IStorage *self, const char *title) {
-    struct Todo todos[7] = {0};
-    if (self->read(self, todos, 7) == false)
-        return false;
+    struct Todo todos[MAX_TODOS] = {0};
+    if (self->read(self, todos, MAX_TODOS) == false) return false;
 
-    const size_t count = self->count(self, todos, 6);
-    if (count >= 6) return false; /* no space */
+    const size_t count = self->count(self, todos, MAX_TODOS - 1);
+    if (count >= MAX_TODOS - 1) return false; /* no space */
 
     /* Generate new ID: max existing + 1 */
     unsigned int max_id = 0u;
@@ -98,7 +97,7 @@ static bool edit(struct IStorage *self, unsigned int id, const char *new_title, 
     struct Todo todos[MAX_TODOS + 1] = {0};
     if (!self->read(self, todos, MAX_TODOS + 1)) return false;
 
-    size_t count = self->count(self, todos, MAX_TODOS + 1);
+    const size_t count = self->count(self, todos, MAX_TODOS + 1);
     bool found = false;
 
     for (size_t i = 0u; i < count; i++) {

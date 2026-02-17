@@ -56,7 +56,7 @@ void test_list() {
     char *argv[] = {"todo", "list"};
 
     struct Service service = {0};
-    struct Command command = {0};
+    struct Argument command = {0};
 
     service_init(&service, &command, 2, argv);
     service.parse(&service);
@@ -69,7 +69,7 @@ void test_list_all() {
     char *argv[] = {"todo", "list", "--a"};
 
     struct Service service = {0};
-    struct Command command = {0};
+    struct Argument command = {0};
 
     service_init(&service, &command,  3, argv);
     service.parse(&service);
@@ -84,7 +84,7 @@ void test_add() {
     char *argv[] = {"todo", "add", "Buy milk"};
 
     struct Service service = {0};
-    struct Command command = {0};
+    struct Argument command = {0};
 
     service_init(&service, &command, 3, argv);
     service.parse(&service);
@@ -97,7 +97,7 @@ void test_edit() {
     char *argv[] = {"todo", "edit", "21"};
 
     struct Service service = {0};
-    struct Command command = {0};
+    struct Argument command = {0};
 
     service_init(&service, &command, 3, argv);
     service.parse(&service);
@@ -110,7 +110,7 @@ void test_edit_title() {
     char *argv[] = {"todo", "edit", "21", "--title", "Water the plants"};
 
     struct Service service = {0};
-    struct Command command = {0};
+    struct Argument command = {0};
 
     service_init(&service, &command, 5, argv);
     service.parse(&service);
@@ -126,7 +126,7 @@ void test_edit_title_completed() {
     char *argv[] = {"todo", "edit", "21", "--title", "Water the plants", "--completed"};
 
     struct Service service = {0};
-    struct Command command = {0};
+    struct Argument command = {0};
 
     service_init(&service, &command, 6, argv);
     service.parse(&service);
@@ -145,7 +145,7 @@ void test_delete() {
     char *argv[] = {"todo", "delete", "42"};
 
     struct Service service = {0};
-    struct Command command = {0};
+    struct Argument command = {0};
 
     service_init(&service, &command, 3, argv);
     service.parse(&service);
@@ -158,7 +158,7 @@ void test_delete_all() {
     char *argv[] = {"todo", "delete", "--all", "--force"};
 
     struct Service service = {0};
-    struct Command command = {0};
+    struct Argument command = {0};
 
     service_init(&service, &command, 4, argv);
     service.parse(&service);
@@ -177,7 +177,7 @@ void test_help() {
     char *argv[] = {"todo", "--help"};
 
     struct Service service = {0};
-    struct Command command = {0};
+    struct Argument command = {0};
 
     service_init(&service, &command, 2, argv);
     service.parse(&service);
@@ -190,7 +190,7 @@ void test_help_short() {
     char *argv[] = {"todo", "-h"};
 
     struct Service service = {0};
-    struct Command command = {0};
+    struct Argument command = {0};
 
     service_init(&service, &command, 2, argv);
     service.parse(&service);
@@ -203,7 +203,7 @@ void test_help_list() {
     char *argv[] = {"todo", "list", "-h"};
 
     struct Service service = {0};
-    struct Command command = {0};
+    struct Argument command = {0};
 
     service_init(&service, &command, 3, argv);
     service.parse(&service);
@@ -218,7 +218,7 @@ void test_version() {
     char *argv[] = {"todo", "--version"};
 
     struct Service service = {0};
-    struct Command command = {0};
+    struct Argument command = {0};
 
     service_init(&service, &command, 2, argv);
     service.parse(&service);
@@ -231,7 +231,7 @@ void test_no_command() {
     char *argv[] = {"todo"};
 
     struct Service service = {0};
-    struct Command command = {0};
+    struct Argument command = {0};
 
     service_init(&service, &command, 1, argv);
     service.parse(&service);
@@ -243,7 +243,7 @@ void test_max_options() {
     char *argv[] = {"todo", "--option1", "--option2", "--option3", "--option4", "--option5", "--option6"};
 
     struct Service service = {0};
-    struct Command command = {0};
+    struct Argument command = {0};
 
     service_init(&service, &command, 7, argv); // max options 5
     service.parse(&service);

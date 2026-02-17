@@ -2,28 +2,28 @@
 
 #include <stdio.h>
 
-static bool read(struct IProxy *self, struct Command *command) {
+static bool read(struct IProxy *self, struct Argument *command) {
     return false;
 }
 
-static bool write(struct IProxy *self, struct Command *command) {
+static bool write(struct IProxy *self, struct Argument *command) {
     return false;
 }
 
-static void list(struct IProxy *self, struct Command *command) {
+static void list(struct IProxy *self, struct Argument *command) {
     // struct ServiceProxy *serviceProxy = (struct ServiceProxy *) self;
     printf("list\n");
 }
 
-static void add(struct IProxy *self, struct Command *command) {
+static void add(struct IProxy *self, struct Argument *command) {
 
 }
 
-static void edit(struct IProxy *self, struct Command *command) {
+static void edit(struct IProxy *self, struct Argument *command) {
 
 }
 
-static void delete(struct IProxy *self, struct Command *command) {
+static void delete(struct IProxy *self, struct Argument *command) {
 
 }
 

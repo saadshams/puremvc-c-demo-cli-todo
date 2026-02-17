@@ -2,7 +2,7 @@
 
 #define MAX_OPTIONS 5
 
-struct Command {
+struct Argument {
     struct {
         const char *name;
         const char *value;

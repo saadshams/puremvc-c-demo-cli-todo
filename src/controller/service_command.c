@@ -11,7 +11,9 @@ static void execute(const struct ICommand *self, struct INotification *notificat
 
     struct IProxy *super = facade->retrieveProxy(facade, ServiceProxy_NAME);
     struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
-    struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt"); // Strategy Pattern, Dependency Injection
+
+    // Strategy Pattern, Dependency Injection
+    struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
     proxy->storage = storage;
 
     proxy->list(proxy->super, notification->getBody(notification));

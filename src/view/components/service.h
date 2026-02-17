@@ -1,17 +1,17 @@
 #pragma once
 
-#include "../../model/valueObject/command.h"
+#include "../../model/valueObject/argument.h"
 
 struct Service {
-    struct Command *command;
+    struct Argument *command;
     int argc;
     char **argv;
 
     const void *context;
-    void (*delegate)(const void *context, struct Command *command);
-    void (*setDelegate)(struct Service *self, const void *context, void (*delegate)(const void *context, struct Command *command));
+    void (*delegate)(const void *context, struct Argument *command);
+    void (*setDelegate)(struct Service *self, const void *context, void (*delegate)(const void *context, struct Argument *command));
 
     void (*parse)(const struct Service *self);
 };
 
-void service_init(struct Service *service, struct Command *command, int argc, char **argv);
+void service_init(struct Service *service, struct Argument *command, int argc, char **argv);

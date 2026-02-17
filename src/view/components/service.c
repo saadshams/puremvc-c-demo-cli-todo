@@ -42,12 +42,12 @@ static void todo_parseObject(const struct Service *self) {
         self->delegate(self->context, self->command);
 }
 
-static void setDelegate(struct Service *self, const void *context, void (*delegate)(const void *context, struct Command *command)) {
+static void setDelegate(struct Service *self, const void *context, void (*delegate)(const void *context, struct Argument *command)) {
     self->context = context;
     self->delegate = delegate;
 }
 
-void service_init(struct Service *service, struct Command *command, int argc, char **argv) {
+void service_init(struct Service *service, struct Argument *command, int argc, char **argv) {
     memset(service, 0, sizeof(*service));
 
     service->command = command;
