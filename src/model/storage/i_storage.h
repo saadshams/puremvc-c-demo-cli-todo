@@ -7,7 +7,7 @@
 #define MAX_TODOS 10
 
 struct IStorage {
-    bool (*read)(struct IStorage *self, struct Todo *out, size_t max);
+    bool (*read)(const struct IStorage *self, struct Todo *out, size_t max);
     bool (*write)(struct IStorage *self, const struct Todo *todos, size_t count);
 
     size_t (*count)(const struct IStorage *self, const struct Todo *todos, size_t max);

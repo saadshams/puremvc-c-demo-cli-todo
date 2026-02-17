@@ -1,75 +1,168 @@
 #include "todo_json.h"
 
 #include <stdio.h>
+#include <string.h>
 
-struct TodoJson {
+struct JSONStorage {
     struct IStorage super;
+    const char *path;
 };
 
-static bool json_load(struct IStorage *self, const char *path, struct Todo *out, size_t max) {
-    (void)self;
+static bool read(const struct IStorage *self, struct Todo *out, const size_t max) {
+    if (out == NULL || max == 0u) return false;
+    struct JSONStorage *this = (struct JSONStorage *) self;
 
-    FILE *f = fopen(path, "r");
-    if (!f) return false;
+    FILE *file = fopen(this->path, "r");
+    if (file == NULL) return false;
 
-    char line[256];
-    size_t i = 0;
+    char line[128];
+    size_t index = 0;
+    while (fgets(line, sizeof(line), file) != NULL && index < max) {
+        char completed[6];
+        struct Todo *todo = &out[index];
+        if (sscanf(line, " { \"id\": %u , \"title\": \"%63[^\"]\", \"completed\": %5[^ },]", &todo->id, todo->title, completed) == 3) {
+            todo->completed = strcmp(completed, "true") == 0;
+            index++;
+        }
+    }
+    out[index].id = 0u; // sentinel
 
-    while (fgets(line, sizeof(line), f) && i < max) {
-        struct Todo t;
+    fclose(file);
+    return true;
+}
 
-        if (sscanf(line,
-                   " { \"id\" : %u , \"completed\" : %u , \"title\" : \"%127[^\"]\" }",
-                   &t.id,
-                   &t.completed,
-                   t.title) == 3)
-        {
-            out[i++] = t;
+static bool write(struct IStorage *self, const struct Todo *todos, const size_t count) {
+    if (todos == NULL || count == 0u) return false;
+    const struct JSONStorage *this = (struct JSONStorage *) self;
+
+    FILE *file = fopen(this->path, "w");
+    if (file == NULL) return false;
+
+    fprintf(file, "[\n");
+    for (size_t i = 0; i < count; i++) {
+        fprintf(file, "\t{ \"id\": %u, \"title\": \"%s\", \"completed\": %s }%s\n", todos[i].id, todos[i].title, todos[i].completed ? "true" : "false", i + 1u < count ? "," : "");
+    }
+    fprintf(file, "]\n");
+
+    fclose(file);
+    return true;
+}
+
+static size_t count(const struct IStorage *self, const struct Todo *todos, const size_t max) {
+    size_t count = 0u;
+    while (count < max && todos[count].id != 0u) {
+        count++;
+    }
+    return count;
+}
+
+/* List all todos (prints to stdout) */
+static void list(struct IStorage *self) {
+    struct Todo todos[MAX_TODOS + 1] = {0};
+    if (!self->read(self, todos, MAX_TODOS + 1)) {
+        fprintf(stderr, "Failed to read todos\n");
+        return;
+    }
+
+    size_t count = self->count(self, todos, MAX_TODOS + 1);
+    for (size_t i = 0u; i < count; i++) {
+        printf("%u | %s | %s\n", todos[i].id, todos[i].title, todos[i].completed ? "true" : "false");
+    }
+}
+
+static bool add(struct IStorage *self, const char *title) {
+    struct Todo todos[MAX_TODOS] = {0};
+    if (self->read(self, todos, MAX_TODOS) == false) return false;
+
+    const size_t count = self->count(self, todos, MAX_TODOS - 1);
+    if (count >= MAX_TODOS - 1) return false; /* no space */
+
+    /* Generate new ID: max existing + 1 */
+    unsigned int max_id = 0u;
+    for (size_t i = 0; i < count; i++) {
+        if (todos[i].id > max_id) max_id = todos[i].id;
+    }
+
+    todos[count].id = max_id + 1u;
+    strncpy(todos[count].title, title, TODO_TITLE_MAX - 1);
+    todos[count].title[TODO_TITLE_MAX - 1] = '\0';
+    todos[count].completed = false;
+
+    /* Sentinel */
+    todos[count + 1].id = 0u;
+
+    return self->write(self, todos, count + 1);
+}
+
+static bool edit(struct IStorage *self, unsigned int id, const char *new_title, bool completed) {
+    struct Todo todos[MAX_TODOS + 1] = {0};
+    if (!self->read(self, todos, MAX_TODOS + 1)) return false;
+
+    const size_t count = self->count(self, todos, MAX_TODOS + 1);
+    bool found = false;
+
+    for (size_t i = 0u; i < count; i++) {
+        if (todos[i].id == id) {
+            if (new_title != NULL) {
+                strncpy(todos[i].title, new_title, TODO_TITLE_MAX - 1);
+                todos[i].title[TODO_TITLE_MAX - 1] = '\0';
+            }
+            todos[i].completed = completed;
+            found = true;
+            break;
         }
     }
 
-    fclose(f);
+    if (!found) return false;
 
-    if (i < max) out[i].id = 0u;
-
-    return true;
+    return self->write(self, todos, count);
 }
 
-static bool json_save(struct IStorage *self, const char *path, const struct Todo *todos, size_t count) {
-    (void)self;
+static bool delete(struct IStorage *self, unsigned int id) {
+    struct Todo todos[MAX_TODOS + 1] = {0};
+    if (!self->read(self, todos, MAX_TODOS + 1)) return false;
 
-    FILE *f = fopen(path, "w");
-    if (!f) return false;
+    size_t count = self->count(self, todos, MAX_TODOS + 1);
+    bool found = false;
 
-    fprintf(f, "[\n");
+    size_t index = 0u;
+    for (size_t i = 0u; i < count; i++) {
+        if (todos[i].id == id) {
+            found = true;
+            continue; /* skip this one, effectively deleting */
+        }
 
-    for (size_t i = 0; i < count; i++) {
-        fprintf(f,
-                "  { \"id\": %u, \"completed\": %u, \"title\": \"%s\" }%s\n",
-                todos[i].id,
-                todos[i].completed,
-                todos[i].title,
-                (i + 1 < count) ? "," : "");
+        if (index != i) {
+            todos[index] = todos[i]; /* shift left */
+        }
+        index++;
     }
 
-    fprintf(f, "]\n");
+    if (!found) return false;
 
-    fclose(f);
-    return true;
+    /* Sentinel */
+    todos[index].id = 0u;
+
+    return self->write(self, todos, index);
 }
 
-static void json_destroy(struct IStorage *self)
-{
-    (void)self;
+size_t todo_json_storage_size() {
+    return (sizeof(struct JSONStorage) + (sizeof(void *) - 1u)) & ~(sizeof(void *) - 1u);
 }
 
-struct IStorage *todo_storage_json_create(void *buffer)
-{
-    struct TodoJson *this = buffer;
+struct IStorage *todo_json_storage_init(void *buffer, const char *path) {
+    struct JSONStorage *this = buffer;
 
-    this->super.load = json_load;
-    this->super.save = json_save;
-    this->super.destroy = json_destroy;
+    this->super.read = read;
+    this->super.write = write;
+
+    this->super.count = count;
+    this->super.list = list;
+    this->super.add = add;
+    this->super.edit = edit;
+    this->super.delete = delete;
+
+    this->path = path;
 
     return &this->super;
 }

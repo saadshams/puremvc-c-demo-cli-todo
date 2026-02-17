@@ -9,6 +9,7 @@ add_library(core
         src/controller/service_command.c
         src/model/service_proxy.c
         src/model/storage/todo_text.c
+        src/model/storage/todo_json.c
         src/model/valueObject/argument.c
         src/model/valueObject/todo.c
         src/view/service_mediator.c

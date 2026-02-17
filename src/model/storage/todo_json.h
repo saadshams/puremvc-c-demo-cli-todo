@@ -2,4 +2,6 @@
 
 #include "i_storage.h"
 
-struct IStorage *todo_storage_json_create(void *buffer);
+size_t todo_json_storage_size();
+
+struct IStorage *todo_json_storage_init(void *buffer, const char *path);

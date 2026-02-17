@@ -8,7 +8,7 @@ struct TextStorage {
     const char *path;
 };
 
-static bool read(struct IStorage *self, struct Todo *out, size_t max) {
+static bool read(const struct IStorage *self, struct Todo *out, const size_t max) {
     if (out == NULL || max == 0u) return false;
     struct TextStorage *this = (struct TextStorage *) self;
 
@@ -21,18 +21,17 @@ static bool read(struct IStorage *self, struct Todo *out, size_t max) {
         unsigned int completed;
         struct Todo *todo = &out[index];
         if (sscanf(line, "%u|%u|%63[^\n]", &todo->id, &completed, todo->title) == 3) {
-            todo->completed = (completed != 0u);
+            todo->completed = completed != 0u;
             index++;
         }
     }
-
     out[index].id = 0u; // sentinel
 
     fclose(file);
     return true;
 }
 
-static bool write(struct IStorage *self, const struct Todo *todos, size_t count) {
+static bool write(struct IStorage *self, const struct Todo *todos, const size_t count) {
     struct TextStorage *this = (struct TextStorage *) self;
 
     FILE *file = fopen(this->path, "w");
@@ -46,7 +45,7 @@ static bool write(struct IStorage *self, const struct Todo *todos, size_t count)
     return true;
 }
 
-static size_t count(const struct IStorage *self, const struct Todo *todos, size_t max) {
+static size_t count(const struct IStorage *self, const struct Todo *todos, const size_t max) {
     size_t count = 0u;
     while (count < max && todos[count].id != 0u) {
         count++;
@@ -92,7 +91,6 @@ static bool add(struct IStorage *self, const char *title) {
     return self->write(self, todos, count + 1);
 }
 
-/* Edit a todo by ID */
 static bool edit(struct IStorage *self, unsigned int id, const char *new_title, bool completed) {
     struct Todo todos[MAX_TODOS + 1] = {0};
     if (!self->read(self, todos, MAX_TODOS + 1)) return false;
@@ -117,7 +115,6 @@ static bool edit(struct IStorage *self, unsigned int id, const char *new_title, 
     return self->write(self, todos, count);
 }
 
-/* Delete a todo by ID */
 static bool delete(struct IStorage *self, unsigned int id) {
     struct Todo todos[MAX_TODOS + 1] = {0};
     if (!self->read(self, todos, MAX_TODOS + 1)) return false;
