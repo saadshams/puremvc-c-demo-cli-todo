@@ -12,7 +12,6 @@ struct ServiceProxy {
     struct IStorage *storage;
     const char *path;
 
-    size_t (*count)(const struct ServiceProxy *self, const struct Todo *out, size_t max);
     void (*list)(const struct ServiceProxy *self, struct Todo *out);
     void (*add)(struct ServiceProxy *self, const char *title, struct Todo *out);
     void (*edit)(struct ServiceProxy *self, unsigned int id, const char *title, bool completed, struct Todo *out);

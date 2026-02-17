@@ -10,10 +10,13 @@ struct TextStorage {
 
 static bool read(const struct IStorage *self, struct Todo *out, const size_t max) {
     if (out == NULL || max == 0u) return false;
-    struct TextStorage *this = (struct TextStorage *) self;
+    const struct TextStorage *this = (struct TextStorage *) self;
 
     FILE *file = fopen(this->path, "r");
-    if (file == NULL) return false;
+    if (file == NULL) {
+        fprintf(stderr, "[CLIDemo:TextStorage:read] Error: Failed to open file '%s' for reading: ", this->path);
+        return false;
+    }
 
     char line[128];
     size_t index = 0;
@@ -35,7 +38,10 @@ static bool write(struct IStorage *self, const struct Todo *todos, const size_t 
     struct TextStorage *this = (struct TextStorage *) self;
 
     FILE *file = fopen(this->path, "w");
-    if (file == NULL) return false;
+    if (file == NULL) {
+        fprintf(stderr, "[CLIDemo:TextStorage:write] Error: Failed to open file '%s' for reading: ", this->path);
+        return false;
+    }
 
     for (size_t i = 0; i < count; i++) {
         fprintf(file, "%u|%u|%s\n", todos[i].id, todos[i].completed, todos[i].title);
@@ -51,16 +57,8 @@ static size_t count(const struct IStorage *self, const struct Todo *todos, const
     return count;
 }
 
-static void list(const struct IStorage *self, struct Todo *out) {
-    if (!self->read(self, out, MAX_TODOS + 1)) {
-        fprintf(stderr, "Failed to read todos\n");
-        return;
-    }
-
-    size_t count = self->count(self, out, MAX_TODOS + 1);
-    for (size_t i = 0u; i < count; i++) {
-        printf("%u | %s | %s\n", out[i].id, out[i].title, out[i].completed ? "true" : "false");
-    }
+static bool list(const struct IStorage *self, struct Todo *out) {
+    return self->read(self, out, MAX_TODOS + 1);
 }
 
 static bool add(struct IStorage *self, const char *title, struct Todo *out) {
@@ -68,10 +66,9 @@ static bool add(struct IStorage *self, const char *title, struct Todo *out) {
     if (self->read(self, todos, MAX_TODOS) == false) return false;
 
     const size_t count = self->count(self, todos, MAX_TODOS - 1);
-    if (count >= MAX_TODOS - 1) return false; /* no space */
+    if (count >= MAX_TODOS - 1) return false; // no space
 
-    /* Generate new ID: max existing + 1 */
-    unsigned int max_id = 0u;
+    unsigned int max_id = 0u; // Generate new ID: max existing + 1
     for (size_t i = 0; i < count; i++) {
         if (todos[i].id > max_id) max_id = todos[i].id;
     }
@@ -81,8 +78,7 @@ static bool add(struct IStorage *self, const char *title, struct Todo *out) {
     todos[count].title[TODO_TITLE_MAX - 1] = '\0';
     todos[count].completed = false;
 
-    /* Sentinel */
-    todos[count + 1].id = 0u;
+    todos[count + 1].id = 0u; // Sentinel
 
     return self->write(self, todos, count + 1);
 }

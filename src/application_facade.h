@@ -6,6 +6,8 @@
 
 #define STARTUP "startup"
 #define SERVICE "service"
+#define SERVICE_RESULT "service_result"
+#define SERVICE_FAULT "service_fault"
 
 struct ApplicationFacade {
     struct IFacade *super;

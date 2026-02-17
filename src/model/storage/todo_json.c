@@ -13,7 +13,10 @@ static bool read(const struct IStorage *self, struct Todo *out, const size_t max
     struct JSONStorage *this = (struct JSONStorage *) self;
 
     FILE *file = fopen(this->path, "r");
-    if (file == NULL) return false;
+    if (file == NULL) {
+        fprintf(stderr, "[CLIDemo:JSONStorage:read] Error: Failed to open file '%s' for reading: ", this->path);
+        return false;
+    }
 
     char line[128];
     size_t index = 0;
@@ -36,7 +39,10 @@ static bool write(struct IStorage *self, const struct Todo *todos, const size_t 
     const struct JSONStorage *this = (struct JSONStorage *) self;
 
     FILE *file = fopen(this->path, "w");
-    if (file == NULL) return false;
+    if (file == NULL) {
+        fprintf(stderr, "[CLIDemo:JSONStorage:write] Error: Failed to open file '%s' for reading: ", this->path);
+        return false;
+    }
 
     fprintf(file, "[\n");
     for (size_t i = 0; i < count; i++) {
@@ -54,16 +60,8 @@ static size_t count(const struct IStorage *self, const struct Todo *todos, const
     return count;
 }
 
-static void list(const struct IStorage *self, struct Todo *todos) {
-    if (!self->read(self, todos, MAX_TODOS + 1)) {
-        fprintf(stderr, "Failed to read todos\n");
-        return;
-    }
-
-    size_t count = self->count(self, todos, MAX_TODOS + 1);
-    for (size_t i = 0u; i < count; i++) {
-        printf("%u | %s | %s\n", todos[i].id, todos[i].title, todos[i].completed ? "true" : "false");
-    }
+static bool list(const struct IStorage *self, struct Todo *todos) {
+    return self->read(self, todos, MAX_TODOS + 1);
 }
 
 static bool add(struct IStorage *self, const char *title, struct Todo *out) {
