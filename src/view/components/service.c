@@ -3,19 +3,19 @@
 
 #include "service.h"
 
-static void todo_parseObject(const struct Service *self) {
+static void parse(const struct Service *self) {
     // todo pass the error to command
     // if (self->argc < 2) return *error = "Usage: todo <command> [options]", (void)0;
 
     int i = 1;
 
     if (i < self->argc && self->argv[i][0] != '-') {
-        self->command->subCommand.name = self->argv[i];
+        self->command->command.name = self->argv[i];
         i++;
     }
 
     if (i < self->argc && self->argv[i][0] != '-') {
-        self->command->subCommand.value = self->argv[i];
+        self->command->command.value = self->argv[i];
         i++;
     }
 
@@ -54,6 +54,6 @@ void service_init(struct Service *service, struct Argument *command, int argc, c
     service->argc = argc;
     service->argv = argv;
 
-    service->parse = todo_parseObject;
+    service->parse = parse;
     service->setDelegate = setDelegate;
 }

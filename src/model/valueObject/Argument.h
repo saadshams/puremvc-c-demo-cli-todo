@@ -6,7 +6,7 @@ struct Argument {
     struct {
         const char *name;
         const char *value;
-    } subCommand;
+    } command;
 
     struct {
         const char *name;
@@ -16,4 +16,8 @@ struct Argument {
     int count; // options count
 
     const char *extra; // extra argument
+
+    const char *(*getOption)(const struct Argument *self, const char *name);
 };
+
+struct Argument *todo_argument_init(void *buffer);

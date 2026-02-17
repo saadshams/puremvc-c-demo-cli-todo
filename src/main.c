@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 
     // 5. Allocate Service Component
     struct Service *service = &(struct Service) {};
-    struct Argument *command = &(struct Argument) {};
+    struct Argument *command = todo_argument_init(&(struct Argument) {});
     service_init(service, command, argc, argv);
 
     // 6. PureMVC Apparatus Startup and Link Service Component through a Mediator

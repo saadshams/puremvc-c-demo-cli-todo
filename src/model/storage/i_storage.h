@@ -11,8 +11,8 @@ struct IStorage {
     bool (*write)(struct IStorage *self, const struct Todo *todos, size_t count);
 
     size_t (*count)(const struct IStorage *self, const struct Todo *todos, size_t max);
-    void (*list)(struct IStorage *self);
-    bool (*add)(struct IStorage *self, const char *title);
-    bool (*edit)(struct IStorage *self, unsigned int id, const char *new_title, bool completed);
-    bool (*delete)(struct IStorage *self, unsigned int id);
+    void (*list)(const struct IStorage *self, struct Todo *out);
+    bool (*add)(struct IStorage *self, const char *title, struct Todo *out);
+    bool (*edit)(struct IStorage *self, unsigned int id, const char *new_title, bool completed, struct Todo *out);
+    bool (*delete)(struct IStorage *self, unsigned int id, struct Todo *out);
 };

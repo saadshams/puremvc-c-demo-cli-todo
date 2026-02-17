@@ -1,30 +1,25 @@
 #include "service_proxy.h"
 
-#include <stdio.h>
+#include "storage/i_storage.h"
 
-static bool read(struct IProxy *self, struct Argument *command) {
-    return false;
+static size_t count(const struct ServiceProxy *self, const struct Todo *out, size_t max) {
+    return self->storage->count(self->storage, out, max);
 }
 
-static bool write(struct IProxy *self, struct Argument *command) {
-    return false;
+static void list(const struct ServiceProxy *self, struct Todo *out) {
+    self->storage->list(self->storage, out);
 }
 
-static void list(struct IProxy *self, struct Argument *command) {
-    // struct ServiceProxy *serviceProxy = (struct ServiceProxy *) self;
-    printf("list\n");
+static void add(struct ServiceProxy *self, const char *title, struct Todo *out) {
+    self->storage->add(self->storage, title, out);
 }
 
-static void add(struct IProxy *self, struct Argument *command) {
-
+static void edit(struct ServiceProxy *self, unsigned int id, const char *title, bool completed, struct Todo *out) {
+    self->storage->edit(self->storage, id, title, completed, out);
 }
 
-static void edit(struct IProxy *self, struct Argument *command) {
-
-}
-
-static void delete(struct IProxy *self, struct Argument *command) {
-
+static void delete(struct ServiceProxy *self, unsigned int id, struct Todo *out) {
+    self->storage->delete(self->storage, id, out);
 }
 
 struct IProxy *service_proxy_init(void *buffer, const char *name, void *data) {
@@ -35,8 +30,7 @@ struct IProxy *service_proxy_init(void *buffer, const char *name, void *data) {
 struct ServiceProxy *service_proxy_bind(struct ServiceProxy *serviceProxy, struct IProxy *super) {
     serviceProxy->super = super;
 
-    serviceProxy->read = read;
-    serviceProxy->write = write;
+    serviceProxy->count = count;
     serviceProxy->list = list;
     serviceProxy->add = add;
     serviceProxy->edit = edit;

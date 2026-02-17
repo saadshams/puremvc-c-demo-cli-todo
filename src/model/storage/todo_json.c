@@ -50,15 +50,11 @@ static bool write(struct IStorage *self, const struct Todo *todos, const size_t 
 
 static size_t count(const struct IStorage *self, const struct Todo *todos, const size_t max) {
     size_t count = 0u;
-    while (count < max && todos[count].id != 0u) {
-        count++;
-    }
+    while (count < max && todos[count].id != 0u) count++;
     return count;
 }
 
-/* List all todos (prints to stdout) */
-static void list(struct IStorage *self) {
-    struct Todo todos[MAX_TODOS + 1] = {0};
+static void list(const struct IStorage *self, struct Todo *todos) {
     if (!self->read(self, todos, MAX_TODOS + 1)) {
         fprintf(stderr, "Failed to read todos\n");
         return;
@@ -70,44 +66,42 @@ static void list(struct IStorage *self) {
     }
 }
 
-static bool add(struct IStorage *self, const char *title) {
-    struct Todo todos[MAX_TODOS] = {0};
-    if (self->read(self, todos, MAX_TODOS) == false) return false;
+static bool add(struct IStorage *self, const char *title, struct Todo *out) {
+    if (self->read(self, out, MAX_TODOS) == false) return false;
 
-    const size_t count = self->count(self, todos, MAX_TODOS - 1);
+    const size_t count = self->count(self, out, MAX_TODOS - 1);
     if (count >= MAX_TODOS - 1) return false; /* no space */
 
     /* Generate new ID: max existing + 1 */
     unsigned int max_id = 0u;
     for (size_t i = 0; i < count; i++) {
-        if (todos[i].id > max_id) max_id = todos[i].id;
+        if (out[i].id > max_id) max_id = out[i].id;
     }
 
-    todos[count].id = max_id + 1u;
-    strncpy(todos[count].title, title, TODO_TITLE_MAX - 1);
-    todos[count].title[TODO_TITLE_MAX - 1] = '\0';
-    todos[count].completed = false;
+    out[count].id = max_id + 1u;
+    strncpy(out[count].title, title, TODO_TITLE_MAX - 1);
+    out[count].title[TODO_TITLE_MAX - 1] = '\0';
+    out[count].completed = false;
 
     /* Sentinel */
-    todos[count + 1].id = 0u;
+    out[count + 1].id = 0u;
 
-    return self->write(self, todos, count + 1);
+    return self->write(self, out, count + 1);
 }
 
-static bool edit(struct IStorage *self, unsigned int id, const char *new_title, bool completed) {
-    struct Todo todos[MAX_TODOS + 1] = {0};
-    if (!self->read(self, todos, MAX_TODOS + 1)) return false;
+static bool edit(struct IStorage *self, unsigned int id, const char *new_title, bool completed, struct Todo *out) {
+    if (!self->read(self, out, MAX_TODOS + 1)) return false;
 
-    const size_t count = self->count(self, todos, MAX_TODOS + 1);
+    const size_t count = self->count(self, out, MAX_TODOS + 1);
     bool found = false;
 
     for (size_t i = 0u; i < count; i++) {
-        if (todos[i].id == id) {
+        if (out[i].id == id) {
             if (new_title != NULL) {
-                strncpy(todos[i].title, new_title, TODO_TITLE_MAX - 1);
-                todos[i].title[TODO_TITLE_MAX - 1] = '\0';
+                strncpy(out[i].title, new_title, TODO_TITLE_MAX - 1);
+                out[i].title[TODO_TITLE_MAX - 1] = '\0';
             }
-            todos[i].completed = completed;
+            out[i].completed = completed;
             found = true;
             break;
         }
@@ -115,25 +109,24 @@ static bool edit(struct IStorage *self, unsigned int id, const char *new_title, 
 
     if (!found) return false;
 
-    return self->write(self, todos, count);
+    return self->write(self, out, count);
 }
 
-static bool delete(struct IStorage *self, unsigned int id) {
-    struct Todo todos[MAX_TODOS + 1] = {0};
-    if (!self->read(self, todos, MAX_TODOS + 1)) return false;
+static bool delete(struct IStorage *self, unsigned int id, struct Todo *out) {
+    if (!self->read(self, out, MAX_TODOS + 1)) return false;
 
-    size_t count = self->count(self, todos, MAX_TODOS + 1);
+    size_t count = self->count(self, out, MAX_TODOS + 1);
     bool found = false;
 
     size_t index = 0u;
     for (size_t i = 0u; i < count; i++) {
-        if (todos[i].id == id) {
+        if (out[i].id == id) {
             found = true;
             continue; /* skip this one, effectively deleting */
         }
 
         if (index != i) {
-            todos[index] = todos[i]; /* shift left */
+            out[index] = out[i]; /* shift left */
         }
         index++;
     }
@@ -141,9 +134,9 @@ static bool delete(struct IStorage *self, unsigned int id) {
     if (!found) return false;
 
     /* Sentinel */
-    todos[index].id = 0u;
+    out[index].id = 0u;
 
-    return self->write(self, todos, index);
+    return self->write(self, out, index);
 }
 
 size_t todo_json_storage_size() {

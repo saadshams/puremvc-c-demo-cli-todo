@@ -1,6 +1,6 @@
 #pragma once
 
-#include "valueObject/argument.h"
+#include "valueObject/todo.h"
 
 #include "puremvc/puremvc.h"
 
@@ -9,15 +9,14 @@
 struct ServiceProxy {
     struct IProxy *super;
 
-    struct IStorage *storage; // Strategy Pattern, Dependency Injection
+    struct IStorage *storage;
     const char *path;
 
-    bool (*read)(struct IProxy *self, struct Argument *command);
-    bool (*write)(struct IProxy *self, struct Argument *command);
-    void (*list)(struct IProxy *self, struct Argument *command);
-    void (*add)(struct IProxy *self, struct Argument *command);
-    void (*edit)(struct IProxy *self, struct Argument *command);
-    void (*delete)(struct IProxy *self, struct Argument *command);
+    size_t (*count)(const struct ServiceProxy *self, const struct Todo *out, size_t max);
+    void (*list)(const struct ServiceProxy *self, struct Todo *out);
+    void (*add)(struct ServiceProxy *self, const char *title, struct Todo *out);
+    void (*edit)(struct ServiceProxy *self, unsigned int id, const char *title, bool completed, struct Todo *out);
+    void (*delete)(struct ServiceProxy *self, unsigned int id, struct Todo *out);
 };
 
 struct IProxy *service_proxy_init(void *buffer, const char *name, void *data);
