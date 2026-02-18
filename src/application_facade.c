@@ -1,6 +1,5 @@
 #include "application_facade.h"
 
-#include "controller/service_command.h"
 #include "controller/startup_command.h"
 
 static void (*super_initializeController)(struct IFacade *self, struct IController *controller);
@@ -8,7 +7,6 @@ static void (*super_initializeController)(struct IFacade *self, struct IControll
 static void initializeController(struct IFacade *self, struct IController *controller) {
     super_initializeController(self, controller); // call super
     self->registerCommand(self, STARTUP, startup_command_init);
-    self->registerCommand(self, SERVICE, service_command_init);
 }
 
 static void startup(struct IFacade *self, struct Service *service) {
