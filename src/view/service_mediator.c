@@ -27,7 +27,7 @@ static void handleNotification(const struct IMediator *self, struct INotificatio
     } else if (strcmp(notification->getName(notification), SERVICE_FAULT) == 0) {
         service->fault(service, notification->getBody(notification));
     } else {
-        service->fault(service, "[CLIDemo::ServiceMediator::handleNotification] Error: Unknown notification.\n");
+        service->fault(service, "[CLIDemo::ServiceMediator::handleNotification] Error: Unknown notification.");
     }
 }
 
