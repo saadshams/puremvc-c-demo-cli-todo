@@ -12,6 +12,7 @@
 #include "../application_facade.h"
 
 static void execute(const struct ICommand *self, struct INotification *notification) {
+
     const struct IFacade *facade = self->getNotifier(self)->getFacade(self->getNotifier(self));
     struct IProxy *super = facade->retrieveProxy(facade, ServiceProxy_NAME);
     struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
@@ -21,8 +22,8 @@ static void execute(const struct ICommand *self, struct INotification *notificat
     // proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json"); // json
 
     struct Todo todos[MAX_TODOS] = {0};
-
     const struct Argument *argument = notification->getBody(notification);
+
     if (strcmp(argument->command.name, "list") == 0) {
         proxy->list(proxy, todos);
     } else if (strcmp(argument->command.name, "add") == 0) {
