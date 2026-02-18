@@ -8,19 +8,23 @@ struct TextStorage {
     const char *path;
 };
 
-static size_t read(const struct IStorage *self, struct Todo todos[]) {
-    if (todos == NULL) return 0;
-    const struct TextStorage *this = (struct TextStorage *) self;
+static size_t read(const struct IStorage *self, struct Todo todos[], size_t max) {
+    const struct TextStorage *this = (const struct TextStorage *) self;
 
     FILE *file = fopen(this->path, "r");
     if (file == NULL) {
         fprintf(stderr, "[CLIDemo:TextStorage:read] Error: Failed to open file '%s' for reading: ", this->path);
-        return false;
+        return 0;
     }
 
-    int i = 0;
-    const char *format = "%u|%d|%[^\n]\n";
-    while (i < MAX_TODOS && fscanf(file, format, &todos[i].id, (int *)&todos[i].completed, todos[i].title) == 3) {
+    size_t i = 0u;
+    while (i < max) {
+        int completed_int;
+        const char *format = "%u|%d|%63[^\n]\n";
+        if (fscanf(file, format, &todos[i].id, &completed_int, todos[i].title) != 3)
+            break;
+
+        todos[i].completed = completed_int ? true : false;
         i++;
     }
 
@@ -28,57 +32,49 @@ static size_t read(const struct IStorage *self, struct Todo todos[]) {
     return i;
 }
 
-static bool write(const struct IStorage *self, const struct Todo todos[], const size_t count) {
-    if (todos == NULL || count <= 0) return false;
+static enum TodoStatus write(const struct IStorage *self, const struct Todo todos[], const size_t count) {
     const struct TextStorage *this = (const struct TextStorage *) self;
 
     FILE *file = fopen(this->path, "w");
     if (file == NULL) {
-        fprintf(stderr, "[CLIDemo:TextStorage:write] Error: Failed to open file '%s' for reading: ", this->path);
-        return false;
+        fprintf(stderr, "[CLIDemo:TextStorage:write] Error: Failed to open file '%s' for writing: ", this->path);
+        return TODO_ERR_INVALID_ARGS;
     }
 
-    for (size_t i = 0; i < count; i++) {
-        fprintf(file, "%u|%u|%s\n", todos[i].id, todos[i].completed, todos[i].title);
+    for (size_t i = 0u; i < count; i++) {
+        fprintf(file, "%u|%u|%s\n", todos[i].id, todos[i].completed ? 1u : 0u, todos[i].title);
     }
 
     fclose(file);
-    return true;
+    return TODO_OK;
 }
 
-static size_t count(const struct IStorage *self, const struct Todo *todos) {
-    (void) self;
-    size_t count = 0u;
-    while (count < MAX_TODOS && todos[count].id != 0u) count++;
-    return count;
+static size_t list(const struct IStorage *self, struct Todo todos[], size_t max) {
+    if (self == NULL || todos == NULL || max == 0u) return 0;
+    return read(self, todos, max);
 }
 
-static size_t list(const struct IStorage *self, struct Todo todos[]) {
-    return self->read(self, todos);
-}
+static enum TodoStatus add(const struct IStorage *self, const char *title) {
+    if (self == NULL || title == NULL) return TODO_ERR_INVALID_ARGS;
 
-static enum TodoStatus add(const struct IStorage *self, struct Todo todos[], const char *title) {
-    if (todos == NULL) return TODO_ERR_INVALID_ARGS;
-    if (self->read(self, todos) < 0) return TODO_ERR_INVALID_ARGS;
-
-    size_t count = self->count(self, todos);
-    if (count >= MAX_TODOS - 1) return TODO_ERR_FULL;
+    struct Todo todos[MAX_TODOS];
+    size_t count = read(self, todos, MAX_TODOS);
+    if (count >= MAX_TODOS) return TODO_ERR_FULL;
 
     struct Todo *todo = &todos[count];
-    todo->id = count > 0 ? todos[count - 1].id + 1 : 1;
+    todo->id = count > 0 ? todos[count - 1].id + 1u : 1u;
     strncpy(todo->title, title, TODO_TITLE_MAX - 1);
     todo->title[TODO_TITLE_MAX - 1] = '\0';
     todo->completed = false;
 
-    count++;
-
-    return self->write(self, todos, count) == true ? TODO_OK : TODO_ERR_FULL;
+    return write(self, todos, count + 1u);
 }
 
-static enum TodoStatus edit(const struct IStorage *self, struct Todo todos[], uint32_t id, const char *title, const bool completed) {
-    if (self->read(self, todos) < 0) return TODO_ERR_INVALID_ARGS;
+static enum TodoStatus edit(const struct IStorage *self, uint32_t id, const char *title, const bool completed) {
+    if (self == NULL) return TODO_ERR_INVALID_ARGS;
 
-    const size_t count = self->count(self, todos);
+    struct Todo todos[MAX_TODOS];
+    const size_t count = read(self, todos, MAX_TODOS);
 
     bool found = false;
     for (size_t i = 0u; i < count; i++) {
@@ -93,18 +89,20 @@ static enum TodoStatus edit(const struct IStorage *self, struct Todo todos[], ui
         }
     }
 
-    if (!found) return false;
+    if (found == false) return TODO_ERR_NOT_FOUND;
 
-    return self->write(self, todos, count);
+    return write(self, todos, count);
 }
 
-static enum TodoStatus delete(const struct IStorage *self, struct Todo todos[], uint32_t id) {
-    if (self->read(self, todos) < 0) return TODO_ERR_INVALID_ARGS;
+static enum TodoStatus delete(const struct IStorage *self, uint32_t id) {
+    if (self == NULL) return TODO_ERR_INVALID_ARGS;
 
-    const size_t count = self->count(self, todos);
+    struct Todo todos[MAX_TODOS];
+    const size_t count = read(self, todos, MAX_TODOS);
+
     bool found = false;
-
     size_t index = 0u;
+
     for (size_t i = 0u; i < count; i++) {
         if (todos[i].id == id) {
             found = true;
@@ -116,9 +114,9 @@ static enum TodoStatus delete(const struct IStorage *self, struct Todo todos[], 
         }
     }
 
-    if (!found) return false;
+    if (found == false) return TODO_ERR_NOT_FOUND;
 
-    return self->write(self, todos, index);
+    return write(self, todos, index);
 }
 
 size_t todo_text_storage_size() {
@@ -128,16 +126,12 @@ size_t todo_text_storage_size() {
 struct IStorage *todo_text_storage_init(void *buffer, const char *path) {
     struct TextStorage *this = buffer;
 
-    this->super.read = read;
-    this->super.write = write;
-
-    this->super.count = count;
     this->super.list = list;
     this->super.add = add;
     this->super.edit = edit;
     this->super.delete = delete;
 
-    this->path = path; // todo copy path
+    this->path = path;
 
     return &this->super;
 }

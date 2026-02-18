@@ -25,25 +25,28 @@ static void execute(const struct ICommand *self, struct INotification *notificat
     const struct Argument *argument = notification->getBody(notification);
 
     if (strcmp(argument->command.name, "list") == 0) {
-        proxy->list(proxy, todos);
+        proxy->list(proxy, todos, MAX_TODOS);
     } else if (strcmp(argument->command.name, "add") == 0) {
-        proxy->add(proxy, todos, argument->getOption(argument, "title"));
+        proxy->add(proxy, argument->getOption(argument, "title"));
+        proxy->list(proxy, todos, MAX_TODOS);
     } else if (strcmp(argument->command.name, "edit") == 0) {
 
         const char *id_str = argument->getOption(argument, "id");
         const char *completed_str = argument->getOption(argument, "completed");
         const char *title = argument->getOption(argument, "title");
 
-        const unsigned int id = id_str ? (unsigned int) strtoul(id_str, NULL, 10) : 0u;
+        const unsigned int id = id_str ? strtoul(id_str, NULL, 10) : 0u;
         const bool completed = completed_str && (strcmp(completed_str, "true") == 0 || strcmp(completed_str, "1") == 0);
 
-        proxy->edit(proxy, todos, id, title, completed);
+        proxy->edit(proxy, id, title, completed);
+        proxy->list(proxy, todos, MAX_TODOS);
 
     } else if (strcmp(argument->command.name, "delete") == 0) {
         const char *id_str = argument->getOption(argument, "id");
-        const unsigned int id = id_str ? (unsigned int) strtoul(id_str, NULL, 10) : 0u;
+        const unsigned int id = id_str ? strtoul(id_str, NULL, 10) : 0u;
 
-        proxy->delete(proxy, todos, id);
+        proxy->delete(proxy, id);
+        proxy->list(proxy, todos, MAX_TODOS);
     } else {
         facade->sendNotification(facade, SERVICE_FAULT, "[CLIDemo::ServiceCommand::execute] Error: Unknown command - Valid commands: list, add, edit, delete.", "");
         return;

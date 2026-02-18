@@ -2,20 +2,20 @@
 
 #include "storage/i_storage.h"
 
-static void list(const struct ServiceProxy *self, struct Todo todos[]) {
-    self->storage->list(self->storage, todos);
+static void list(const struct ServiceProxy *self, struct Todo todos[], size_t max) {
+    self->storage->list(self->storage, todos, max);
 }
 
-static void add(const struct ServiceProxy *self, struct Todo todos[], const char *title) {
-    self->storage->add(self->storage, todos, title);
+static void add(const struct ServiceProxy *self, const char *title) {
+    self->storage->add(self->storage, title);
 }
 
-static void edit(const struct ServiceProxy *self, struct Todo todos[], uint32_t id, const char *title, const bool completed) {
-    self->storage->edit(self->storage, todos, id, title, completed);
+static void edit(const struct ServiceProxy *self, uint32_t id, const char *title, const bool completed) {
+    self->storage->edit(self->storage, id, title, completed);
 }
 
-static void delete(const struct ServiceProxy *self, struct Todo todos[], uint32_t id) {
-    self->storage->delete(self->storage, todos, id);
+static void delete(const struct ServiceProxy *self, uint32_t id) {
+    self->storage->delete(self->storage, id);
 }
 
 struct IProxy *service_proxy_init(void *buffer, const char *name, void *data) {
