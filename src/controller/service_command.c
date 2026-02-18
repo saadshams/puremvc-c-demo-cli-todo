@@ -16,13 +16,18 @@ static void execute(const struct ICommand *self, struct INotification *notificat
     struct IProxy *super = facade->retrieveProxy(facade, ServiceProxy_NAME);
     struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
 
-    // Strategy Pattern, Dependency Injection (set notification SERVICE_RESULT type for display type accordingly)
-    proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../todos.txt"); // text
-    // proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json"); // json
+    // Strategy Pattern, Dependency Injection
+    const char *type = "json"; // text|json
+    if (strcmp(type, "text") == 0) {
+        proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../todos.txt");
+    } else {
+        proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json");
+    }
 
     struct Todo todos[MAX_TODOS] = {0};
     const struct Argument *argument = notification->getBody(notification);
 
+    // options
     if (argument->options[0].name != NULL && strcmp(argument->options[0].name, "--version") == 0) {
         facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->version(proxy), NULL);
         return;
@@ -33,6 +38,7 @@ static void execute(const struct ICommand *self, struct INotification *notificat
         return;
     }
 
+    // main commands
     bool success = false;
     if (strcmp(argument->command.name, "list") == 0) {
         proxy->list(proxy, todos, MAX_TODOS);
@@ -62,7 +68,7 @@ static void execute(const struct ICommand *self, struct INotification *notificat
     }
 
     if (success == true) {
-        facade->sendNotification(facade, SERVICE_RESULT, todos, "text"); // display type (text|json)
+        facade->sendNotification(facade, SERVICE_RESULT, todos, strcmp(type, "text") == 0 ? "text" : "json");
     } else {
         facade->sendNotification(facade, SERVICE_FAULT, "[CLIDemo::ServiceCommand::execute] Error: Unknown command - Valid commands: list, add, edit, delete.", "");
     }
