@@ -1,8 +1,10 @@
 #include "service_mediator.h"
 
 #include "../application_facade.h"
+#include "../model/enum/status.h"
 
 #include <string.h>
+#include <stdio.h>
 
 static void onParse(const struct IMediator *self, struct Argument *command) {
     const struct INotifier *notifier = self->getNotifier(self);
@@ -25,9 +27,9 @@ static void handleNotification(const struct IMediator *self, struct INotificatio
     if (strcmp(notification->getName(notification), SERVICE_RESULT) == 0) {
         service->result(service, notification->getBody(notification), notification->getType(notification));
     } else if (strcmp(notification->getName(notification), SERVICE_FAULT) == 0) {
-        service->fault(service, notification->getBody(notification));
+        service->fault(service, (enum Status)(intptr_t) notification->getBody(notification));
     } else {
-        service->fault(service, "[CLIDemo::ServiceMediator::handleNotification] Error: Unknown notification.");
+        printf("%s\n", "[CLIDemo::ServiceMediator::handleNotification] Error: Unknown notification.");
     }
 }
 

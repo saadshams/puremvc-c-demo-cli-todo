@@ -52,17 +52,17 @@ static bool write(const struct IStorage *self, const struct Todo todos[], const 
     return true;
 }
 
-static size_t list(const struct IStorage *self, struct Todo todos[], size_t max) {
-    if (self == NULL || todos == NULL || max == 0u) return 0;
-    return read(self, todos, max);
+static enum Status list(const struct IStorage *self, struct Todo todos[], size_t max) {
+    if (self == NULL || todos == NULL || max == 0u) return ERR_INVALID_ARGS;
+    return read(self, todos, max) != -1 ? OK : ERR_STORAGE_MISSING;
 }
 
-static enum TodoStatus add(const struct IStorage *self, const char *title) {
-    if (self == NULL || title == NULL) return TODO_ERR_INVALID_ARGS;
+static enum Status add(const struct IStorage *self, const char *title) {
+    if (self == NULL || title == NULL) return ERR_INVALID_ARGS;
 
     struct Todo todos[MAX_TODOS];
     size_t count = read(self, todos, MAX_TODOS);
-    if (count >= MAX_TODOS) return TODO_ERR_FULL;
+    if (count >= MAX_TODOS) return ERR_FULL;
 
     struct Todo *todo = &todos[count];
     todo->id = count > 0 ? todos[count - 1].id + 1u : 1u;
@@ -71,11 +71,11 @@ static enum TodoStatus add(const struct IStorage *self, const char *title) {
     todo->title[TODO_TITLE_MAX - 1] = '\0';
     todo->completed = false;
 
-    return write(self, todos, count + 1u);
+    return write(self, todos, count + 1u) ? OK : ERR_FULL;
 }
 
-static enum TodoStatus edit(const struct IStorage *self, const uint32_t id, const char *title, bool completed) {
-    if (self == NULL) return TODO_ERR_INVALID_ARGS;
+static enum Status edit(const struct IStorage *self, const uint32_t id, const char *title, bool completed) {
+    if (self == NULL) return ERR_INVALID_ARGS;
 
     struct Todo todos[MAX_TODOS];
     const size_t count = read(self, todos, MAX_TODOS);
@@ -93,13 +93,13 @@ static enum TodoStatus edit(const struct IStorage *self, const uint32_t id, cons
         }
     }
 
-    if (found == false) return TODO_ERR_NOT_FOUND;
+    if (found == false) return ERR_NOT_FOUND;
 
     return write(self, todos, count);
 }
 
-static enum TodoStatus delete(const struct IStorage *self, uint32_t id) {
-    if (self == NULL) return TODO_ERR_INVALID_ARGS;
+static enum Status delete(const struct IStorage *self, uint32_t id) {
+    if (self == NULL) return ERR_INVALID_ARGS;
 
     struct Todo todos[MAX_TODOS];
     const size_t count = read(self, todos, MAX_TODOS);
@@ -118,7 +118,7 @@ static enum TodoStatus delete(const struct IStorage *self, uint32_t id) {
         }
     }
 
-    if (found == false) return TODO_ERR_NOT_FOUND;
+    if (found == false) return ERR_NOT_FOUND;
 
     return write(self, todos, index);
 }

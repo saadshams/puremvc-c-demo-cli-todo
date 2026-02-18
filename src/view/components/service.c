@@ -51,9 +51,9 @@ static void result(const struct Service *self, const void *data, const char *typ
     type[0] != '\0' ? todo_print(data, type) : printf("%s\n", (char *) data);
 }
 
-static void fault(const struct Service *self, const char *message) {
+static void fault(const struct Service *self, enum Status status) {
     (void) self;
-    fprintf(stderr, "%s\n", message);
+    fprintf(stderr, "%s\n", status_message(status));
 }
 
 static void setDelegate(struct Service *self, const void *context, void (*delegate)(const void *context, struct Argument *argument)) {

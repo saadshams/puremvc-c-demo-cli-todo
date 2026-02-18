@@ -4,20 +4,20 @@
 
 #include <stdio.h>
 
-static void list(const struct ServiceProxy *self, struct Todo todos[], size_t max) {
-    self->storage->list(self->storage, todos, max);
+static enum Status list(const struct ServiceProxy *self, struct Todo todos[], size_t max) {
+    return self->storage->list(self->storage, todos, max);
 }
 
-static void add(const struct ServiceProxy *self, const char *title) {
-    self->storage->add(self->storage, title);
+static enum Status add(const struct ServiceProxy *self, const char *title) {
+    return self->storage->add(self->storage, title);
 }
 
-static void edit(const struct ServiceProxy *self, uint32_t id, const char *title, const bool completed) {
-    self->storage->edit(self->storage, id, title, completed);
+static enum Status edit(const struct ServiceProxy *self, uint32_t id, const char *title, const bool completed) {
+    return self->storage->edit(self->storage, id, title, completed);
 }
 
-static void delete(const struct ServiceProxy *self, const uint32_t id) {
-    self->storage->delete(self->storage, id);
+static enum Status delete(const struct ServiceProxy *self, const uint32_t id) {
+    return self->storage->delete(self->storage, id);
 }
 
 static const char *help(const struct ServiceProxy *self) {

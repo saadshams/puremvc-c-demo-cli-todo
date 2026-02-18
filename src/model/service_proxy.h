@@ -12,10 +12,11 @@ struct ServiceProxy {
     struct IStorage *storage;
     const char *path;
 
-    void (*list)(const struct ServiceProxy *self, struct Todo todos[], size_t max);
-    void (*add)(const struct ServiceProxy *self, const char *title);
-    void (*edit)(const struct ServiceProxy* self, uint32_t id, const char* title, bool completed);
-    void (*delete)(const struct ServiceProxy *self, uint32_t id);
+    enum Status (*list)(const struct ServiceProxy *self, struct Todo todos[], size_t max);
+    enum Status (*add)(const struct ServiceProxy *self, const char *title);
+    enum Status (*edit)(const struct ServiceProxy* self, uint32_t id, const char* title, bool completed);
+    enum Status (*delete)(const struct ServiceProxy *self, uint32_t id);
+
     const char *(*help)(const struct ServiceProxy *self);
     const char *(*version)(const struct ServiceProxy *self);
 };

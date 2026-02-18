@@ -3,15 +3,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define MAX_TODOS 10
+#define MAX_TODOS        10
 #define TODO_TITLE_MAX   64u
-
-enum TodoStatus {
-    TODO_OK = 0,
-    TODO_ERR_FULL,
-    TODO_ERR_NOT_FOUND,
-    TODO_ERR_INVALID_ARGS
-};
 
 struct Todo {
     uint32_t id;
