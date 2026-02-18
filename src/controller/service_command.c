@@ -1,5 +1,6 @@
 #include "service_command.h"
 
+#include "../application_facade.h"
 #include "../model/service_proxy.h"
 #include "../model/valueObject/argument.h"
 #include "../model/storage/todo_text.h"
@@ -8,8 +9,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "../application_facade.h"
 
 static void execute(const struct ICommand *self, struct INotification *notification) {
 

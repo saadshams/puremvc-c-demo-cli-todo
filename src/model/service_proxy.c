@@ -36,8 +36,6 @@ static const char *version(const struct ServiceProxy *self) {
     (void) self;
     static char buffer[128];
     snprintf(buffer, sizeof(buffer), "\x1b[33m%s (built %s %s)\x1b[0m\n", VERSION, __DATE__, __TIME__);
-
-    // snprintf(buffer, sizeof(buffer), "\x1b[33m%s\x1b[0m\n", VERSION);
     return buffer;
 }
 
