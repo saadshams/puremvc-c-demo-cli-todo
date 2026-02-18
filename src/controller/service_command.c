@@ -24,7 +24,11 @@ static void execute(const struct ICommand *self, struct INotification *notificat
     struct Todo todos[MAX_TODOS] = {0};
     const struct Argument *argument = notification->getBody(notification);
 
-    if (strcmp(argument->command.name, "list") == 0) {
+    if (argument->options[0].name != NULL && strcmp(argument->options[0].name, "--version") == 0) {
+        facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->version(proxy), NULL);
+    } else if (argument->options[0].name != NULL && strcmp(argument->options[0].name, "--help") == 0) {
+        facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->help(proxy), NULL);
+    } else if (strcmp(argument->command.name, "list") == 0) {
         proxy->list(proxy, todos, MAX_TODOS);
     } else if (strcmp(argument->command.name, "add") == 0) {
         proxy->add(proxy, argument->getOption(argument, "title"));
@@ -52,7 +56,7 @@ static void execute(const struct ICommand *self, struct INotification *notificat
         return;
     }
 
-    facade->sendNotification(facade, SERVICE_RESULT, todos, "text");
+    facade->sendNotification(facade, SERVICE_RESULT, todos, "json");
 }
 
 struct ICommand *service_command_init(void *buffer) {

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../model/valueObject/argument.h"
-#include "../../model/valueObject/todo.h"
 
 struct Service {
     struct Argument *argument;
@@ -13,7 +12,7 @@ struct Service {
     void (*setDelegate)(struct Service *self, const void *context, void (*delegate)(const void *context, struct Argument *argument));
 
     void (*parse)(const struct Service *self);
-    void (*result)(const struct Service *self, const struct Todo *todos, const char *type);
+    void (*result)(const struct Service *self, const void *data, const char *type);
     void (*fault)(const struct Service *self, const char *message);
 };
 

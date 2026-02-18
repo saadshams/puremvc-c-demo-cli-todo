@@ -20,7 +20,7 @@ struct Todo {
     bool completed;
 };
 
-void todo_print(const struct Todo *todo);
+void todo_print(const struct Todo todos[], const char *type);
 
 bool todo_parseObject(struct Todo *out, const char *object);
 

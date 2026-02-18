@@ -1,6 +1,5 @@
 #include "service_test.h"
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -61,8 +60,8 @@ void test_list() {
     service_init(&service, &argument, 2, argv);
     service.parse(&service);
 
-    assert(strcmp(argument.command.name, "list") == 0);
-    assert(argument.command.value == NULL);
+    if(strcmp(argument.command.name, "list") != 0) abort();
+    if(argument.command.value != NULL) abort();
 }
 
 void test_list_all() {
@@ -74,10 +73,10 @@ void test_list_all() {
     service_init(&service, &argument,  3, argv);
     service.parse(&service);
 
-    assert(strcmp(argument.command.name, "list") == 0);
-    assert(argument.command.value == NULL);
-    assert(strcmp(argument.options[0].name, "--a") == 0);
-    assert(strcmp(argument.options[0].value, "true") == 0);
+    if(strcmp(argument.command.name, "list") != 0) abort();
+    if(argument.command.value != NULL) abort();
+    if(strcmp(argument.options[0].name, "--a") != 0) abort();
+    if(strcmp(argument.options[0].value, "true") != 0) abort();
 }
 
 void test_add() {
@@ -89,8 +88,8 @@ void test_add() {
     service_init(&service, &argument, 3, argv);
     service.parse(&service);
 
-    assert(strcmp(argument.command.name, "add") == 0);
-    assert(strcmp(argument.command.value, "Buy milk") == 0);
+    if(strcmp(argument.command.name, "add") != 0) abort();
+    if(strcmp(argument.command.value, "Buy milk") != 0) abort();
 }
 
 void test_edit() {
@@ -102,8 +101,8 @@ void test_edit() {
     service_init(&service, &argument, 3, argv);
     service.parse(&service);
 
-    assert(strcmp(argument.command.name, "edit") == 0);
-    assert(strcmp(argument.command.value, "21") == 0);
+    if(strcmp(argument.command.name, "edit") != 0) abort();
+    if(strcmp(argument.command.value, "21") != 0) abort();
 }
 
 void test_edit_title() {
@@ -115,11 +114,11 @@ void test_edit_title() {
     service_init(&service, &argument, 5, argv);
     service.parse(&service);
 
-    assert(strcmp(argument.command.name, "edit") == 0);
-    assert(strcmp(argument.command.value, "21") == 0);
+    if(strcmp(argument.command.name, "edit") != 0) abort();
+    if(strcmp(argument.command.value, "21") != 0) abort();
 
-    assert(strcmp(argument.options[0].name, "--title") == 0);
-    assert(strcmp(argument.options[0].value, "Water the plants") == 0);
+    if(strcmp(argument.options[0].name, "--title") != 0) abort();
+    if(strcmp(argument.options[0].value, "Water the plants") != 0) abort();
 }
 
 void test_edit_title_completed() {
@@ -131,14 +130,14 @@ void test_edit_title_completed() {
     service_init(&service, &argument, 6, argv);
     service.parse(&service);
 
-    assert(strcmp(argument.command.name, "edit") == 0);
-    assert(strcmp(argument.command.value, "21") == 0);
+    if(strcmp(argument.command.name, "edit") != 0) abort();
+    if(strcmp(argument.command.value, "21") != 0) abort();
 
-    assert(strcmp(argument.options[0].name, "--title") == 0);
-    assert(strcmp(argument.options[0].value, "Water the plants") == 0);
+    if(strcmp(argument.options[0].name, "--title") != 0) abort();
+    if(strcmp(argument.options[0].value, "Water the plants") != 0) abort();
 
-    assert(strcmp(argument.options[1].name, "--completed") == 0);
-    assert(strcmp(argument.options[1].value, "true") == 0);
+    if(strcmp(argument.options[1].name, "--completed") != 0) abort();
+    if(strcmp(argument.options[1].value, "true") != 0) abort();
 }
 
 void test_delete() {
@@ -150,8 +149,8 @@ void test_delete() {
     service_init(&service, &argument, 3, argv);
     service.parse(&service);
 
-    assert(strcmp(argument.command.name, "delete") == 0);
-    assert(strcmp(argument.command.value, "42") == 0);
+    if(strcmp(argument.command.name, "delete") != 0) abort();
+    if(strcmp(argument.command.value, "42") != 0) abort();
 }
 
 void test_delete_all() {
@@ -163,14 +162,14 @@ void test_delete_all() {
     service_init(&service, &argument, 4, argv);
     service.parse(&service);
 
-    assert(strcmp(argument.command.name, "delete") == 0);
-    assert(argument.command.value == NULL);
+    if(strcmp(argument.command.name, "delete") != 0) abort();
+    if(argument.command.value != NULL) abort();
 
-    assert(strcmp(argument.options[0].name, "--all") == 0);
-    assert(strcmp(argument.options[0].value, "true") == 0);
+    if(strcmp(argument.options[0].name, "--all") != 0) abort();
+    if(strcmp(argument.options[0].value, "true") != 0) abort();
 
-    assert(strcmp(argument.options[1].name, "--force") == 0);
-    assert(strcmp(argument.options[1].value, "true") == 0);
+    if(strcmp(argument.options[1].name, "--force") != 0) abort();
+    if(strcmp(argument.options[1].value, "true") != 0) abort();
 }
 
 void test_help() {
@@ -182,8 +181,8 @@ void test_help() {
     service_init(&service, &argument, 2, argv);
     service.parse(&service);
 
-    assert(strcmp(argument.options[0].name, "--help") == 0);
-    assert(strcmp(argument.options[0].value, "true") == 0);
+    if(strcmp(argument.options[0].name, "--help") != 0) abort();
+    if(strcmp(argument.options[0].value, "true") != 0) abort();
 }
 
 void test_help_short() {
@@ -195,8 +194,8 @@ void test_help_short() {
     service_init(&service, &argument, 2, argv);
     service.parse(&service);
 
-    assert(strcmp(argument.options[0].name, "-h") == 0);
-    assert(strcmp(argument.options[0].value, "true") == 0);
+    if(strcmp(argument.options[0].name, "-h") != 0) abort();
+    if(strcmp(argument.options[0].value, "true") != 0) abort();
 }
 
 void test_help_list() {
@@ -208,10 +207,10 @@ void test_help_list() {
     service_init(&service, &argument, 3, argv);
     service.parse(&service);
 
-    assert(strcmp(argument.command.name, "list") == 0);
-    assert(argument.command.value == NULL);
-    assert(strcmp(argument.options[0].name, "-h") == 0);
-    assert(strcmp(argument.options[0].value, "true") == 0);
+    if(strcmp(argument.command.name, "list") != 0) abort();
+    if(argument.command.value != NULL) abort();
+    if(strcmp(argument.options[0].name, "-h") != 0) abort();
+    if(strcmp(argument.options[0].value, "true") != 0) abort();
 }
 
 void test_version() {
@@ -223,8 +222,8 @@ void test_version() {
     service_init(&service, &argument, 2, argv);
     service.parse(&service);
 
-    assert(strcmp(argument.options[0].name, "--version") == 0);
-    assert(strcmp(argument.options[0].value, "true") == 0);
+    if(strcmp(argument.options[0].name, "--version") != 0) abort();
+    if(strcmp(argument.options[0].value, "true") != 0) abort();
 }
 
 void test_no_command() {
@@ -235,8 +234,6 @@ void test_no_command() {
 
     service_init(&service, &argument, 1, argv);
     service.parse(&service);
-
-    // assert(error != NULL);
 }
 
 void test_max_options() {
@@ -248,18 +245,18 @@ void test_max_options() {
     service_init(&service, &argument, 7, argv); // max options 5
     service.parse(&service);
 
-    assert(strcmp(argument.options[0].name, "--option1") == 0);
-    assert(strcmp(argument.options[0].value, "true") == 0);
+    if(strcmp(argument.options[0].name, "--option1") != 0) abort();
+    if(strcmp(argument.options[0].value, "true") != 0) abort();
 
-    assert(strcmp(argument.options[1].name, "--option2") == 0);
-    assert(strcmp(argument.options[1].value, "true") == 0);
+    if(strcmp(argument.options[1].name, "--option2") != 0) abort();
+    if(strcmp(argument.options[1].value, "true") != 0) abort();
 
-    assert(strcmp(argument.options[2].name, "--option3") == 0);
-    assert(strcmp(argument.options[2].value, "true") == 0);
+    if(strcmp(argument.options[2].name, "--option3") != 0) abort();
+    if(strcmp(argument.options[2].value, "true") != 0) abort();
 
-    assert(strcmp(argument.options[3].name, "--option4") == 0);
-    assert(strcmp(argument.options[3].value, "true") == 0);
+    if(strcmp(argument.options[3].name, "--option4") != 0) abort();
+    if(strcmp(argument.options[3].value, "true") != 0) abort();
 
-    assert(strcmp(argument.options[4].name, "--option5") == 0);
-    assert(strcmp(argument.options[4].value, "true") == 0);
+    if(strcmp(argument.options[4].name, "--option5") != 0) abort();
+    if(strcmp(argument.options[4].value, "true") != 0) abort();
 }

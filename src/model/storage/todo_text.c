@@ -19,8 +19,10 @@ static size_t read(const struct IStorage *self, struct Todo todos[], size_t max)
 
     size_t i = 0u;
     int completed_int;
-    char* format = "%u|%d|%63[^\n]\n";
-    while (i < max && fscanf(file, format, &todos[i].id, &completed_int, todos[i].title) == 3) {
+    const char *format = "%u|%d|%63[^\n]\n";
+    while (i < max) {
+        memset(&todos[i], 0, sizeof(struct Todo));
+        if (fscanf(file, format, &todos[i].id, &completed_int, todos[i].title) != 3) break;
         todos[i].completed = completed_int != 0;
         i++;
     }
@@ -55,7 +57,7 @@ static enum TodoStatus add(const struct IStorage *self, const char *title) {
     if (self == NULL || title == NULL) return TODO_ERR_INVALID_ARGS;
 
     struct Todo todos[MAX_TODOS];
-    size_t count = read(self, todos, MAX_TODOS);
+    const size_t count = read(self, todos, MAX_TODOS);
     if (count >= MAX_TODOS) return TODO_ERR_FULL;
 
     struct Todo *todo = &todos[count];

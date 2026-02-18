@@ -16,6 +16,8 @@ struct ServiceProxy {
     void (*add)(const struct ServiceProxy *self, const char *title);
     void (*edit)(const struct ServiceProxy* self, uint32_t id, const char* title, bool completed);
     void (*delete)(const struct ServiceProxy *self, uint32_t id);
+    const char *(*help)(const struct ServiceProxy *self);
+    const char *(*version)(const struct ServiceProxy *self);
 };
 
 struct IProxy *service_proxy_init(void *buffer, const char *name, void *data);

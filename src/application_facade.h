@@ -4,6 +4,7 @@
 
 #include "view/components/service.h"
 
+#define VERSION "Todo CLI Version 1.0.0"
 #define STARTUP "startup"
 #define SERVICE "service"
 #define SERVICE_RESULT "service_result"
