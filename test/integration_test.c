@@ -5,7 +5,12 @@
 #include <stdio.h>
 #include <string.h>
 
-static void beforeAll() {}
+static void beforeAll() {
+#ifdef _WIN32
+#define pclose _pclose
+#define popen _popen
+#endif
+}
 static void beforeEach() {
 #ifdef _WIN32
     system("copy ..\\..\\todos.txt .");
@@ -52,10 +57,18 @@ void testList() {
     char output[MAX_OUTPUT];
 
     {
-        FILE *pipe = popen("../todo list", "r");
+        FILE *pipe = NULL;
+        const char *command = NULL;
+#ifdef _WIN32
+        command = "..\\todo.exe list";
+#else
+        command = "../todo list";
+#endif
+        pipe = popen(command, "r");
         if (!pipe) { perror("popen"); exit(1); }
         size_t len = 0; output[0] = '\0';
-        while (fgets(output + len, sizeof(output) - len, pipe)) len = strlen(output);
+        while (len < sizeof(output) - 1 && fgets(output + len, sizeof(output) - len, pipe))
+            len += strlen(output + len);
         pclose(pipe);
     }
 
@@ -68,17 +81,32 @@ void testAdd() {
     char output[MAX_OUTPUT];
 
     {
-        FILE *pipe = popen("../todo add \"Buy Milk\"", "r");
+        FILE *pipe = NULL;
+        const char *command = NULL;
+#ifdef _WIN32
+        command = "..\\todo.exe add \"Buy Milk\" --completed true";
+#else
+        command = "../todo add \"Buy Milk\" --completed true";
+#endif
+        pipe = popen(command, "r");
         if (!pipe) { perror("popen"); exit(1); }
         pclose(pipe);
     }
 
     // Verify added
     {
-        FILE *pipe = popen("../todo list", "r");
+        FILE *pipe = NULL;
+        const char *command = NULL;
+#ifdef _WIN32
+        command = "..\\todo.exe list";
+#else
+        command = "../todo list";
+#endif
+        pipe = popen(command, "r");
         if (!pipe) { perror("popen"); exit(1); }
         size_t len = 0; output[0] = '\0';
-        while (fgets(output + len, sizeof(output) - len, pipe)) len = strlen(output);
+        while (len < sizeof(output) - 1 && fgets(output + len, sizeof(output) - len, pipe))
+            len += strlen(output + len);
         pclose(pipe);
     }
 
@@ -89,19 +117,33 @@ void testAdd() {
 void testEdit() {
     char output[MAX_OUTPUT];
 
-    // Inline run_command
     {
-        FILE *pipe = popen("../todo edit 2 -t \"Water the plants - edited\" --completed", "r");
+        FILE *pipe = NULL;
+        const char *command = NULL;
+#ifdef _WIN32
+        command = "..\\todo.exe edit 2 -t \"Water the plants - edited\" --completed true";
+#else
+        command = "../todo edit 2 -t \"Water the plants - edited\" --completed true";
+#endif
+        pipe = popen(command, "r");
         if (!pipe) { perror("popen"); exit(1); }
         pclose(pipe);
     }
 
     // Verify edited
     {
-        FILE *pipe = popen("../todo list", "r");
+        FILE *pipe = NULL;
+        const char *command = NULL;
+#ifdef _WIN32
+        command = "..\\todo.exe list";
+#else
+        command = "../todo list";
+#endif
+        pipe = popen(command, "r");
         if (!pipe) { perror("popen"); exit(1); }
         size_t len = 0; output[0] = '\0';
-        while (fgets(output + len, sizeof(output) - len, pipe)) len = strlen(output);
+        while (len < sizeof(output) - 1 && fgets(output + len, sizeof(output) - len, pipe))
+            len += strlen(output + len);
         pclose(pipe);
     }
 
@@ -112,19 +154,33 @@ void testEdit() {
 void testDelete() {
     char output[MAX_OUTPUT];
 
-    // Inline run_command
     {
-        FILE *pipe = popen("../todo delete 1", "r");
+        FILE *pipe = NULL;
+        const char *command = NULL;
+#ifdef _WIN32
+        command = "..\\todo.exe delete 1";
+#else
+        command = "../todo delete 1";
+#endif
+        pipe = popen(command, "r");
         if (!pipe) { perror("popen"); exit(1); }
         pclose(pipe);
     }
 
     // Verify deletion
     {
-        FILE *pipe = popen("../todo list", "r");
+        FILE *pipe = NULL;
+        const char *command = NULL;
+#ifdef _WIN32
+        command = "..\\todo.exe list";
+#else
+        command = "../todo list";
+#endif
+        pipe = popen(command, "r");
         if (!pipe) { perror("popen"); exit(1); }
         size_t len = 0; output[0] = '\0';
-        while (fgets(output + len, sizeof(output) - len, pipe)) len = strlen(output);
+        while (len < sizeof(output) - 1 && fgets(output + len, sizeof(output) - len, pipe))
+            len += strlen(output + len);
         pclose(pipe);
     }
 

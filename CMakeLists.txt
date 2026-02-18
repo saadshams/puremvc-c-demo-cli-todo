@@ -24,18 +24,15 @@ target_compile_options(core
 
 add_subdirectory("../puremvc-c-multicore-framework2" puremvc)
 target_link_libraries(core PRIVATE puremvc)
-
 target_include_directories(core
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/include
             ../puremvc-c-multicore-framework2/include)
 
 add_executable(todo src/main.c)
-
 target_link_libraries(todo PRIVATE core)
 
 option(TODO_BUILD_TESTS "Build Todo Tests" ${PROJECT_IS_TOP_LEVEL})
-
 if (TODO_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
