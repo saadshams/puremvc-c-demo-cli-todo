@@ -9,8 +9,9 @@ static void initializeController(struct IFacade *self, struct IController *contr
     self->registerCommand(self, STARTUP, startup_command_init);
 }
 
-static void startup(struct IFacade *self, struct Service *service) {
-    self->sendNotification(self, STARTUP, service, NULL);
+static void startup(const struct ApplicationFacade *self, struct Service *service) {
+    const struct IFacade *this = (const struct IFacade *) self;
+    this->sendNotification(this, STARTUP, service, NULL);
 }
 
 struct IFacade *application_facade_getInstance(struct FacadeMap **facadeMap, const char *key) {

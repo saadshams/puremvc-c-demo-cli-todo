@@ -3,6 +3,7 @@
 #include "../valueObject/todo.h"
 
 #include <stdbool.h>
+#include <stddef.h>
 
 struct IStorage {
     size_t (*list)(const struct IStorage *self, struct Todo todos[], size_t max);
