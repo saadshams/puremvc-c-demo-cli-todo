@@ -49,7 +49,7 @@ void testRead() {
     struct Todo todos[MAX_TODOS] = {0};
 
     struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
-    if (storage->read(storage, todos, MAX_TODOS) == false) {
+    if (storage->read(storage, todos) == false) {
         fprintf(stderr, "Failed to read todos\n"); abort();
     }
 
@@ -84,7 +84,7 @@ void testWrite() {
 
     // assertions
     struct Todo todos[MAX_TODOS] = {0};
-    if (storage->read(storage, todos, MAX_TODOS) == false) {
+    if (storage->read(storage, todos) == false) {
         fprintf(stderr, "Failed to read todos\n"); abort();
     }
 
@@ -106,8 +106,8 @@ void testAdd() {
     struct Todo todos[MAX_TODOS] = {0};
 
     struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
-    storage->add(storage, "Finish homework");
-    if (storage->read(storage, todos, MAX_TODOS) == false) {
+    storage->add(storage, todos, "Finish homework");
+    if (storage->read(storage, todos) == false) {
         fprintf(stderr, "Failed to read todos\n"); abort();
     }
 
@@ -132,8 +132,8 @@ void testEdit() {
     struct Todo todos[MAX_TODOS] = {0};
 
     struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
-    storage->edit(storage, 2, "Water the garden", true);
-    if (storage->read(storage, todos, MAX_TODOS) == false) {
+    storage->edit(storage, todos, 2, "Water the garden", true);
+    if (storage->read(storage, todos) == false) {
         fprintf(stderr, "Failed to read todos\n"); abort();
     }
 
@@ -157,8 +157,8 @@ void testDelete() {
     struct Todo todos[MAX_TODOS] = {0};
 
     struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
-    storage->delete(storage, 2);
-    if (storage->read(storage, todos, MAX_TODOS) == false) {
+    storage->delete(storage, todos, 2);
+    if (storage->read(storage, todos) == false) {
         fprintf(stderr, "Failed to read todos\n"); abort();
     }
 

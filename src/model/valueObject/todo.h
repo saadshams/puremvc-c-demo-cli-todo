@@ -2,12 +2,20 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
+#define MAX_TODOS 10
 #define TODO_TITLE_MAX   64u
-#define TODO_BUFFER_MAX  256  // max length of a single Todo JSON string
+
+enum TodoStatus {
+    TODO_OK = 0,
+    TODO_ERR_FULL,
+    TODO_ERR_NOT_FOUND,
+    TODO_ERR_INVALID_ARGS
+};
 
 struct Todo {
-    unsigned int id;
+    uint32_t id;
     char title[TODO_TITLE_MAX];
     bool completed;
 };

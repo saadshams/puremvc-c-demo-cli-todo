@@ -4,15 +4,15 @@
 
 #include <stdbool.h>
 
-#define MAX_TODOS 10
-
 struct IStorage {
-    bool (*read)(const struct IStorage *self, struct Todo *out, size_t max);
-    bool (*write)(struct IStorage *self, const struct Todo *todos, size_t count);
+    size_t (*read)(const struct IStorage *self, struct Todo todos[]);
+    bool (*write)(const struct IStorage *self, const struct Todo todos[], size_t count);
 
-    size_t (*count)(const struct IStorage *self, const struct Todo *todos, size_t max);
-    bool (*list)(const struct IStorage *self, struct Todo *out);
-    bool (*add)(struct IStorage *self, const char *title, struct Todo *out);
-    bool (*edit)(struct IStorage *self, unsigned int id, const char *new_title, bool completed, struct Todo *out);
-    bool (*delete)(struct IStorage *self, unsigned int id, struct Todo *out);
+    size_t (*count)(const struct IStorage *self, const struct Todo *todos);
+
+    size_t (*list)(const struct IStorage *self, struct Todo todos[]);
+
+    enum TodoStatus (*add)(const struct IStorage *self, struct Todo todos[], const char *title);
+    enum TodoStatus (*edit)(const struct IStorage *self, struct Todo todos[], uint32_t id, const char *title, bool completed);
+    enum TodoStatus (*delete)(const struct IStorage *self, struct Todo todos[], uint32_t id);
 };

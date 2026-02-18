@@ -83,7 +83,7 @@ void service_init(struct Service *service, struct Argument *argument, int argc, 
     service->argv = argv;
 
     service->parse = parse;
-    service->setDelegate = setDelegate;
     service->result = result;
     service->fault = fault;
+    service->setDelegate = setDelegate;
 }

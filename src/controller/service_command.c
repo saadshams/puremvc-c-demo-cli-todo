@@ -26,7 +26,7 @@ static void execute(const struct ICommand *self, struct INotification *notificat
     if (strcmp(argument->command.name, "list") == 0) {
         proxy->list(proxy, todos);
     } else if (strcmp(argument->command.name, "add") == 0) {
-        proxy->add(proxy, argument->getOption(argument, "title"), todos);
+        proxy->add(proxy, todos, argument->getOption(argument, "title"));
     } else if (strcmp(argument->command.name, "edit") == 0) {
 
         const char *id_str = argument->getOption(argument, "id");
@@ -34,15 +34,15 @@ static void execute(const struct ICommand *self, struct INotification *notificat
         const char *title = argument->getOption(argument, "title");
 
         const unsigned int id = id_str ? (unsigned int) strtoul(id_str, NULL, 10) : 0u;
-        bool completed = completed_str && (strcmp(completed_str, "true") == 0 || strcmp(completed_str, "1") == 0);
+        const bool completed = completed_str && (strcmp(completed_str, "true") == 0 || strcmp(completed_str, "1") == 0);
 
-        proxy->edit(proxy, id, title, completed, todos);
+        proxy->edit(proxy, todos, id, title, completed);
 
     } else if (strcmp(argument->command.name, "delete") == 0) {
         const char *id_str = argument->getOption(argument, "id");
         const unsigned int id = id_str ? (unsigned int) strtoul(id_str, NULL, 10) : 0u;
 
-        proxy->delete(proxy, id, todos);
+        proxy->delete(proxy, todos, id);
     } else {
         facade->sendNotification(facade, SERVICE_FAULT, "[CLIDemo::ServiceCommand::execute] Error: Unknown command - Valid commands: list, add, edit, delete.", "");
         return;

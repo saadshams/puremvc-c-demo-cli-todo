@@ -67,7 +67,7 @@ size_t todo_stringifyPointers(struct Todo **todos, char *out, size_t size) {
     len += snprintf(out + len, size - len, "[\n");
 
     for (size_t i = 0; todos[i] != NULL; i++) {
-        char buffer[TODO_BUFFER_MAX];
+        char buffer[MAX_TODOS];
         if (todo_stringifyObject(todos[i], buffer, sizeof(buffer)) == false)
             break;
 

@@ -12,10 +12,10 @@ struct ServiceProxy {
     struct IStorage *storage;
     const char *path;
 
-    void (*list)(const struct ServiceProxy *self, struct Todo *out);
-    void (*add)(struct ServiceProxy *self, const char *title, struct Todo *out);
-    void (*edit)(struct ServiceProxy *self, unsigned int id, const char *title, bool completed, struct Todo *out);
-    void (*delete)(struct ServiceProxy *self, unsigned int id, struct Todo *out);
+    void (*list)(const struct ServiceProxy *self, struct Todo todos[]);
+    void (*add)(const struct ServiceProxy *self, struct Todo todos[], const char *title);
+    void (*edit)(const struct ServiceProxy* self, struct Todo todos[], uint32_t id, const char* title, bool completed);
+    void (*delete)(const struct ServiceProxy *self, struct Todo todos[], uint32_t id);
 };
 
 struct IProxy *service_proxy_init(void *buffer, const char *name, void *data);
