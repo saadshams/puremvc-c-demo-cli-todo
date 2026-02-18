@@ -17,7 +17,7 @@ static void execute(const struct ICommand *self, struct INotification *notificat
     struct IProxy *super = facade->retrieveProxy(facade, ServiceProxy_NAME);
     struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
 
-    // Strategy Pattern, Dependency Injection (set notification SERVICE_RESULT type accordingly)
+    // Strategy Pattern, Dependency Injection (set notification SERVICE_RESULT type for display type accordingly)
     proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../todos.txt"); // text
     // proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json"); // json
 
@@ -63,7 +63,7 @@ static void execute(const struct ICommand *self, struct INotification *notificat
     }
 
     if (success == true) {
-        facade->sendNotification(facade, SERVICE_RESULT, todos, "text");
+        facade->sendNotification(facade, SERVICE_RESULT, todos, "text"); // display type (text|json)
     } else {
         facade->sendNotification(facade, SERVICE_FAULT, "[CLIDemo::ServiceCommand::execute] Error: Unknown command - Valid commands: list, add, edit, delete.", "");
     }
