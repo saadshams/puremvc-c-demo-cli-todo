@@ -18,7 +18,7 @@ static void execute(const struct ICommand *self, struct INotification *notificat
 
     // Strategy Pattern, Dependency Injection
     const char *type = "json"; // text|json
-    if (strcmp(type, "text") == 0) {
+    if (strcmp(type, "json") == 0) {
         proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../todos.txt");
     } else {
         proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json");

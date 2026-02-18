@@ -16,7 +16,7 @@ static void edit(const struct ServiceProxy *self, uint32_t id, const char *title
     self->storage->edit(self->storage, id, title, completed);
 }
 
-static void delete(const struct ServiceProxy *self, uint32_t id) {
+static void delete(const struct ServiceProxy *self, const uint32_t id) {
     self->storage->delete(self->storage, id);
 }
 
