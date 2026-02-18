@@ -18,13 +18,10 @@ static size_t read(const struct IStorage *self, struct Todo todos[], size_t max)
     }
 
     size_t i = 0u;
-    while (i < max) {
-        int completed_int;
-        const char *format = "%u|%d|%63[^\n]\n";
-        if (fscanf(file, format, &todos[i].id, &completed_int, todos[i].title) != 3)
-            break;
-
-        todos[i].completed = completed_int ? true : false;
+    int completed_int;
+    char* format = "%u|%d|%63[^\n]\n";
+    while (i < max && fscanf(file, format, &todos[i].id, &completed_int, todos[i].title) == 3) {
+        todos[i].completed = completed_int != 0;
         i++;
     }
 

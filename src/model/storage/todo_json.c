@@ -9,7 +9,6 @@ struct JSONStorage {
 };
 
 static size_t read(const struct IStorage *self, struct Todo todos[], size_t max) {
-    if (todos == NULL) return 0;
     const struct JSONStorage *this = (const struct JSONStorage *) self;
 
     FILE *file = fopen(this->path, "r");
@@ -20,7 +19,7 @@ static size_t read(const struct IStorage *self, struct Todo todos[], size_t max)
 
     char line[128];
     size_t i = 0;
-    while (i < max && fgets(line, sizeof(line), file) != NULL) {
+    while (fgets(line, sizeof(line), file) != NULL && i < max) {
         char completed[6];
         struct Todo *todo = &todos[i];
         const char* format = " { \"id\": %u , \"title\": \"%63[^\"]\", \"completed\": %5[^ },]";
@@ -31,11 +30,10 @@ static size_t read(const struct IStorage *self, struct Todo todos[], size_t max)
     }
 
     fclose(file);
-    return true;
+    return i;
 }
 
 static bool write(const struct IStorage *self, const struct Todo todos[], const size_t count) {
-    if (todos == NULL || count == 0u) return false;
     const struct JSONStorage *this = (struct JSONStorage *) self;
 
     FILE *file = fopen(this->path, "w");
@@ -54,7 +52,6 @@ static bool write(const struct IStorage *self, const struct Todo todos[], const 
     return true;
 }
 
-static size_t count(const struct IStorage *self, const struct Todo *todos) {
 static size_t list(const struct IStorage *self, struct Todo todos[], size_t max) {
     if (self == NULL || todos == NULL || max == 0u) return 0;
     return read(self, todos, max);
@@ -69,6 +66,7 @@ static enum TodoStatus add(const struct IStorage *self, const char *title) {
 
     struct Todo *todo = &todos[count];
     todo->id = count > 0 ? todos[count - 1].id + 1u : 1u;
+    memset(todo->title, '\0', TODO_TITLE_MAX);
     strncpy(todo->title, title, TODO_TITLE_MAX - 1);
     todo->title[TODO_TITLE_MAX - 1] = '\0';
     todo->completed = false;
