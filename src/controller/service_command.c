@@ -19,47 +19,46 @@ static void execute(const struct ICommand *self, struct INotification *notificat
     // Strategy Pattern, Dependency Injection
     const char *type = "json"; // text|json
     if (strcmp(type, "json") == 0) {
-        proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../todos.txt");
+        proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "./todos.txt");
     } else {
-        proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json");
+        proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "./todos.json");
     }
 
     struct Todo todos[MAX_TODOS] = {0};
     const struct Argument *argument = notification->getBody(notification);
 
-    // options
-    if (argument->options[0].name != NULL && strcmp(argument->options[0].name, "--version") == 0) {
-        facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->version(proxy), NULL);
-        return;
+    if (argument->options[0].name != NULL) { // options
+        if (strcmp(argument->options[0].name, "--version") == 0 || strcmp(argument->options[0].name, "-v") == 0) {
+            facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->version(proxy), NULL);
+            return;
+        }
+
+        if (strcmp(argument->options[0].name, "--help") == 0 || strcmp(argument->options[0].name, "-h") == 0) {
+            facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->help(proxy), NULL);
+            return;
+        }
     }
 
-    if (argument->options[0].name != NULL && strcmp(argument->options[0].name, "--help") == 0) {
-        facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->help(proxy), NULL);
-        return;
-    }
-
-    // main commands
-    bool success = false;
+    bool success = false; // main commands
     if (strcmp(argument->command.name, "list") == 0) {
         proxy->list(proxy, todos, MAX_TODOS);
         success = true;
     } else if (strcmp(argument->command.name, "add") == 0) {
-        proxy->add(proxy, argument->getOption(argument, "title"));
+        proxy->add(proxy, argument->command.value);
         proxy->list(proxy, todos, MAX_TODOS);
         success = true;
     } else if (strcmp(argument->command.name, "edit") == 0) {
-        const char *id_str = argument->getOption(argument, "id");
-        const char *completed_str = argument->getOption(argument, "completed");
-        const char *title = argument->getOption(argument, "title");
-
+        const char *id_str = argument->command.value;
+        const char *completed_str = argument->getOption(argument, "-c") ? argument->getOption(argument, "-c") : argument->getOption(argument, "--completed");
+        const char *title = argument->getOption(argument, "-t") ? argument->getOption(argument, "-t") : argument->getOption(argument, "--title");
         const unsigned int id = id_str ? strtoul(id_str, NULL, 10) : 0u;
-        const bool completed = completed_str && (strcmp(completed_str, "true") == 0 || strcmp(completed_str, "1") == 0);
+        const bool completed = completed_str != NULL && strcmp(completed_str, "true") == 0;
 
         proxy->edit(proxy, id, title, completed);
         proxy->list(proxy, todos, MAX_TODOS);
         success = true;
     } else if (strcmp(argument->command.name, "delete") == 0) {
-        const char *id_str = argument->getOption(argument, "id");
+        const char *id_str = argument->command.value;
         const unsigned int id = id_str ? strtoul(id_str, NULL, 10) : 0u;
 
         proxy->delete(proxy, id);
