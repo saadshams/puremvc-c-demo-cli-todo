@@ -47,7 +47,7 @@ static void parse(const struct Service *self) {
 
 static void result(const struct Service *self, const void *data, const char *type) {
     (void) self;
-    todo_print(data, type);
+    type != NULL ? todo_print(data, type) : printf("%s\n", (char *) data);
 }
 
 static void fault(const struct Service *self, const char *message) {

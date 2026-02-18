@@ -34,9 +34,11 @@ static const char *help(const struct ServiceProxy *self) {
 
 static const char *version(const struct ServiceProxy *self) {
     (void) self;
-    static char version[128]; // static buffer for return
-    snprintf(version, sizeof(version), "\x1b[33m%s\x1b[0m\n", VERSION);
-    return version;
+    static char buffer[128];
+    snprintf(buffer, sizeof(buffer), "\x1b[33m%s (built %s %s)\x1b[0m\n", VERSION, __DATE__, __TIME__);
+
+    // snprintf(buffer, sizeof(buffer), "\x1b[33m%s\x1b[0m\n", VERSION);
+    return buffer;
 }
 
 struct IProxy *service_proxy_init(void *buffer, const char *name, void *data) {

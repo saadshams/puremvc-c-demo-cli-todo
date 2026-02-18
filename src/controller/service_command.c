@@ -26,15 +26,23 @@ static void execute(const struct ICommand *self, struct INotification *notificat
 
     if (argument->options[0].name != NULL && strcmp(argument->options[0].name, "--version") == 0) {
         facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->version(proxy), NULL);
-    } else if (argument->options[0].name != NULL && strcmp(argument->options[0].name, "--help") == 0) {
+        return;
+    }
+
+    if (argument->options[0].name != NULL && strcmp(argument->options[0].name, "--help") == 0) {
         facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->help(proxy), NULL);
-    } else if (strcmp(argument->command.name, "list") == 0) {
+        return;
+    }
+
+    bool success = false;
+    if (strcmp(argument->command.name, "list") == 0) {
         proxy->list(proxy, todos, MAX_TODOS);
+        success = true;
     } else if (strcmp(argument->command.name, "add") == 0) {
         proxy->add(proxy, argument->getOption(argument, "title"));
         proxy->list(proxy, todos, MAX_TODOS);
+        success = true;
     } else if (strcmp(argument->command.name, "edit") == 0) {
-
         const char *id_str = argument->getOption(argument, "id");
         const char *completed_str = argument->getOption(argument, "completed");
         const char *title = argument->getOption(argument, "title");
@@ -44,19 +52,21 @@ static void execute(const struct ICommand *self, struct INotification *notificat
 
         proxy->edit(proxy, id, title, completed);
         proxy->list(proxy, todos, MAX_TODOS);
-
+        success = true;
     } else if (strcmp(argument->command.name, "delete") == 0) {
         const char *id_str = argument->getOption(argument, "id");
         const unsigned int id = id_str ? strtoul(id_str, NULL, 10) : 0u;
 
         proxy->delete(proxy, id);
         proxy->list(proxy, todos, MAX_TODOS);
-    } else {
-        facade->sendNotification(facade, SERVICE_FAULT, "[CLIDemo::ServiceCommand::execute] Error: Unknown command - Valid commands: list, add, edit, delete.", "");
-        return;
+        success = true;
     }
 
-    facade->sendNotification(facade, SERVICE_RESULT, todos, "json");
+    if (success == true) {
+        facade->sendNotification(facade, SERVICE_RESULT, todos, "text");
+    } else {
+        facade->sendNotification(facade, SERVICE_FAULT, "[CLIDemo::ServiceCommand::execute] Error: Unknown command - Valid commands: list, add, edit, delete.", "");
+    }
 }
 
 struct ICommand *service_command_init(void *buffer) {
