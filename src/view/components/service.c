@@ -6,7 +6,8 @@
 
 static void parse(const struct Service *self) {
     if (self->argc < 2) {
-        fprintf(stderr, "[CLIDemo::Service::result] Error: Usage: todo <command> [options].\n");
+        self->argument->options[self->argument->count].name = "-h";
+        if (self->delegate != NULL) self->delegate(self->context, self->argument);
         return;
     }
 
