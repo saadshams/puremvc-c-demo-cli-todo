@@ -1,6 +1,6 @@
 #pragma once
 
-#include "puremvc/puremvc.h"
+#include <puremvc/puremvc.h>
 
 #define ServiceMediator_NAME "ServiceMediator"
 

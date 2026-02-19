@@ -8,7 +8,7 @@ struct Service {
 
     const void *context;
     void (*delegate)(const void *context, void *data);
-    void (*setDelegate)(struct Service *self, const void *context, void (*delegate)(const void *context, void *data));
+    void (*setDelegate)(void *self, const void *context, void (*delegate)(const void *context, void *data));
 
     void (*start)(const struct Service *self, int argc, char **argv);
     void (*result)(const struct Service *self, const void *data, const char *type);
