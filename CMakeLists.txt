@@ -30,8 +30,7 @@ target_link_libraries(core PUBLIC puremvc)
 target_include_directories(core
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/include
-            ${CMAKE_CURRENT_SOURCE_DIR}/src
-            ../puremvc-c-multicore-framework2/include)
+            ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # The Executable
 add_executable(todo src/main.c)

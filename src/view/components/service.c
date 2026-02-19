@@ -56,7 +56,7 @@ static void fault(const struct Service *self, enum Status status) {
     fprintf(stderr, "%s\n", status_message(status));
 }
 
-static void setDelegate(struct Service *self, const void *context, void (*delegate)(const void *context, struct Argument *argument)) {
+static void setDelegate(struct Service *self, const void *context, void (*delegate)(const void *context, void *data)) {
     self->context = context;
     self->delegate = delegate;
 }
