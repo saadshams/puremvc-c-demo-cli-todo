@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../enum/status.h"
-#include "../valueObject/todo.h"
+#include "model/enum/status.h"
+#include "model/valueObject/todo.h"
 
 #include <stdbool.h>
 #include <stddef.h>

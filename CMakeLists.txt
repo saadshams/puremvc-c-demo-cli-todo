@@ -3,6 +3,9 @@ project(todo C)
 
 set(CMAKE_C_STANDARD 11)
 
+# Dependencies External Subprojects
+add_subdirectory("../puremvc-c-multicore-framework2" puremvc)
+
 add_library(core
         src/application_facade.c
         src/controller/startup_command.c
@@ -16,19 +19,21 @@ add_library(core
         src/view/service_mediator.c
         src/view/components/service.c)
 
-# Compiler warnings (cross-platform, strict)
-target_compile_options(core
-    PRIVATE
-        $<$<C_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Werror -fsanitize=address,undefined,leak -fno-omit-frame-pointer>
+# Compiler Sanitizers & Warnings (cross-platform, strict)
+target_compile_options(core PRIVATE
+        $<$<C_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer>
         $<$<C_COMPILER_ID:MSVC>:/W4 /WX>)
+target_link_options(core PUBLIC
+        $<$<C_COMPILER_ID:GNU,Clang>:-fsanitize=address,undefined>)
 
-add_subdirectory("../puremvc-c-multicore-framework2" puremvc)
-target_link_libraries(core PRIVATE puremvc)
+target_link_libraries(core PUBLIC puremvc)
 target_include_directories(core
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/include
-            ../puremvc-c-multicore-framework2/include)
+            ../puremvc-c-multicore-framework2/include
+            ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
+# The Executable
 add_executable(todo src/main.c)
 target_link_libraries(todo PRIVATE core)
 

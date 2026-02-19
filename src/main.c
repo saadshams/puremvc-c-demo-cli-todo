@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(int argc, char **argv) {
+int main(const int argc, char **argv) {
     const char *name = "todoApp";
 
     // Application bootstrap and PureMVC initialization

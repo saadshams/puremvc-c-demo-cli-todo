@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../model/enum/status.h"
-#include "../../model/valueObject/argument.h"
+#include "model/enum/status.h"
+#include "model/valueObject/argument.h"
 
 struct Service {
     struct Argument *argument;

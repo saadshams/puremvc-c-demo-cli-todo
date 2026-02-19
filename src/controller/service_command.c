@@ -1,10 +1,10 @@
 #include "service_command.h"
 
-#include "../application_facade.h"
-#include "../model/service_proxy.h"
-#include "../model/valueObject/argument.h"
-#include "../model/storage/todo_text.h"
-#include "../model/storage/todo_json.h"
+#include "application_facade.h"
+#include "model/service_proxy.h"
+#include "model/valueObject/argument.h"
+#include "model/storage/todo_text.h"
+#include "model/storage/todo_json.h"
 
 #include <stdio.h>
 #include <stdlib.h>
