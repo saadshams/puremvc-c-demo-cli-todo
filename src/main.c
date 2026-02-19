@@ -83,13 +83,13 @@ int main(int argc, char **argv) {
     // 5. Allocate Service Component
     struct Service *service = &(struct Service) {}; // Argument Parser, Result and Fault handler
     struct Argument *argument = todo_argument_init(&(struct Argument) {}); // CLI Argument
-    service_init(service, argument, argc, argv);
+    service_init(service, argument);
 
     // 6. PureMVC Apparatus Startup and Link Service Component through ServiceMediator
     facade->startup(facade, service);
 
     // 7. Start Service Component
-    service->parse(service); // Execute command parsing & dispatch SERVICE notification
+    service->start(service, argc, argv); // Execute command parsing & dispatch SERVICE notification
 
     return 0;
 }

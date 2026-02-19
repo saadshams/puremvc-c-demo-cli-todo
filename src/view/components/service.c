@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
-static void parse(const struct Service *self) {
-    if (self->argc < 2) {
+static void start(const struct Service *self, const int argc, char **argv) {
+    if (argc < 2) {
         self->argument->options[self->argument->count].name = "-h";
         if (self->delegate != NULL) self->delegate(self->context, self->argument);
         return;
@@ -13,21 +13,21 @@ static void parse(const struct Service *self) {
 
     int i = 1;
 
-    if (i < self->argc && self->argv[i][0] != '-') {
-        self->argument->command.name = self->argv[i];
+    if (i < argc && argv[i][0] != '-') {
+        self->argument->command.name = argv[i];
         i++;
     }
 
-    if (i < self->argc && self->argv[i][0] != '-') {
-        self->argument->command.value = self->argv[i];
+    if (i < argc && argv[i][0] != '-') {
+        self->argument->command.value = argv[i];
         i++;
     }
 
-    while (i < self->argc && self->argument->count < MAX_OPTIONS) {
-        if (self->argv[i][0] == '-') {
-            self->argument->options[self->argument->count].name = self->argv[i];
-            if (i + 1 < self->argc && self->argv[i + 1][0] != '-' ) {
-                self->argument->options[self->argument->count].value = self->argv[i + 1];
+    while (i < argc && self->argument->count < MAX_OPTIONS) {
+        if (argv[i][0] == '-') {
+            self->argument->options[self->argument->count].name = argv[i];
+            if (i + 1 < argc && argv[i + 1][0] != '-' ) {
+                self->argument->options[self->argument->count].value = argv[i + 1];
                 self->argument->count++;
                 i += 2;
             } else {
@@ -38,8 +38,8 @@ static void parse(const struct Service *self) {
         }
     }
 
-    if (i < self->argc) {
-        self->argument->extra = self->argv[i];
+    if (i < argc) {
+        self->argument->extra = argv[i];
     }
 
     if (self->delegate != NULL)
@@ -61,14 +61,12 @@ static void setDelegate(struct Service *self, const void *context, void (*delega
     self->delegate = delegate;
 }
 
-void service_init(struct Service *service, struct Argument *argument, int argc, char **argv) {
+void service_init(struct Service *service, struct Argument *argument) {
     memset(service, 0, sizeof(*service));
 
     service->argument = argument;
-    service->argc = argc;
-    service->argv = argv;
 
-    service->parse = parse;
+    service->start = start;
     service->result = result;
     service->fault = fault;
     service->setDelegate = setDelegate;

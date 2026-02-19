@@ -57,8 +57,8 @@ void test_list() {
     struct Service service = {0};
     struct Argument argument = {0};
 
-    service_init(&service, &argument, 2, argv);
-    service.parse(&service);
+    service_init(&service, &argument);
+    service.start(&service, 2, argv);
 
     if(strcmp(argument.command.name, "list") != 0) abort();
     if(argument.command.value != NULL) abort();
@@ -70,8 +70,8 @@ void test_list_all() {
     struct Service service = {0};
     struct Argument argument = {0};
 
-    service_init(&service, &argument,  3, argv);
-    service.parse(&service);
+    service_init(&service, &argument);
+    service.start(&service, 3, argv);
 
     if(strcmp(argument.command.name, "list") != 0) abort();
     if(argument.command.value != NULL) abort();
@@ -85,8 +85,8 @@ void test_add() {
     struct Service service = {0};
     struct Argument argument = {0};
 
-    service_init(&service, &argument, 3, argv);
-    service.parse(&service);
+    service_init(&service, &argument);
+    service.start(&service, 3, argv);
 
     if(strcmp(argument.command.name, "add") != 0) abort();
     if(strcmp(argument.command.value, "Buy milk") != 0) abort();
@@ -98,8 +98,8 @@ void test_edit() {
     struct Service service = {0};
     struct Argument argument = {0};
 
-    service_init(&service, &argument, 3, argv);
-    service.parse(&service);
+    service_init(&service, &argument);
+    service.start(&service, 3, argv);
 
     if(strcmp(argument.command.name, "edit") != 0) abort();
     if(strcmp(argument.command.value, "21") != 0) abort();
@@ -111,8 +111,8 @@ void test_edit_title() {
     struct Service service = {0};
     struct Argument argument = {0};
 
-    service_init(&service, &argument, 5, argv);
-    service.parse(&service);
+    service_init(&service, &argument);
+    service.start(&service, 5, argv);
 
     if(strcmp(argument.command.name, "edit") != 0) abort();
     if(strcmp(argument.command.value, "21") != 0) abort();
@@ -127,8 +127,8 @@ void test_edit_title_completed() {
     struct Service service = {0};
     struct Argument argument = {0};
 
-    service_init(&service, &argument, 6, argv);
-    service.parse(&service);
+    service_init(&service, &argument);
+    service.start(&service, 6, argv);
 
     if(strcmp(argument.command.name, "edit") != 0) abort();
     if(strcmp(argument.command.value, "21") != 0) abort();
@@ -146,8 +146,8 @@ void test_delete() {
     struct Service service = {0};
     struct Argument argument = {0};
 
-    service_init(&service, &argument, 3, argv);
-    service.parse(&service);
+    service_init(&service, &argument);
+    service.start(&service, 3, argv);
 
     if(strcmp(argument.command.name, "delete") != 0) abort();
     if(strcmp(argument.command.value, "42") != 0) abort();
@@ -159,8 +159,8 @@ void test_delete_all() {
     struct Service service = {0};
     struct Argument argument = {0};
 
-    service_init(&service, &argument, 4, argv);
-    service.parse(&service);
+    service_init(&service, &argument);
+    service.start(&service, 4, argv);
 
     if(strcmp(argument.command.name, "delete") != 0) abort();
     if(argument.command.value != NULL) abort();
@@ -178,8 +178,8 @@ void test_help() {
     struct Service service = {0};
     struct Argument argument = {0};
 
-    service_init(&service, &argument, 2, argv);
-    service.parse(&service);
+    service_init(&service, &argument);
+    service.start(&service, 2, argv);
 
     if(strcmp(argument.options[0].name, "--help") != 0) abort();
     if(strcmp(argument.options[0].value, "true") != 0) abort();
@@ -191,8 +191,8 @@ void test_help_short() {
     struct Service service = {0};
     struct Argument argument = {0};
 
-    service_init(&service, &argument, 2, argv);
-    service.parse(&service);
+    service_init(&service, &argument);
+    service.start(&service, 2, argv);
 
     if(strcmp(argument.options[0].name, "-h") != 0) abort();
     if(strcmp(argument.options[0].value, "true") != 0) abort();
@@ -204,8 +204,8 @@ void test_help_list() {
     struct Service service = {0};
     struct Argument argument = {0};
 
-    service_init(&service, &argument, 3, argv);
-    service.parse(&service);
+    service_init(&service, &argument);
+    service.start(&service, 3, argv);
 
     if(strcmp(argument.command.name, "list") != 0) abort();
     if(argument.command.value != NULL) abort();
@@ -219,8 +219,8 @@ void test_version() {
     struct Service service = {0};
     struct Argument argument = {0};
 
-    service_init(&service, &argument, 2, argv);
-    service.parse(&service);
+    service_init(&service, &argument);
+    service.start(&service, 2, argv);
 
     if(strcmp(argument.options[0].name, "--version") != 0) abort();
     if(strcmp(argument.options[0].value, "true") != 0) abort();
@@ -232,8 +232,8 @@ void test_no_command() {
     struct Service service = {0};
     struct Argument argument = {0};
 
-    service_init(&service, &argument, 1, argv);
-    service.parse(&service);
+    service_init(&service, &argument);
+    service.start(&service, 1, argv);
 }
 
 void test_max_options() {
@@ -242,8 +242,8 @@ void test_max_options() {
     struct Service service = {0};
     struct Argument argument = {0};
 
-    service_init(&service, &argument, 7, argv); // max options 5
-    service.parse(&service);
+    service_init(&service, &argument); // max options 5
+    service.start(&service, 7, argv);
 
     if(strcmp(argument.options[0].name, "--option1") != 0) abort();
     if(strcmp(argument.options[0].value, "true") != 0) abort();
