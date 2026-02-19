@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../../src/model/storage/i_storage.h"
+#include "../../../include/todo/i_storage.h"
 #include "../../../src/model/storage/todo_text.h"
 
 static void beforeAll() {}
