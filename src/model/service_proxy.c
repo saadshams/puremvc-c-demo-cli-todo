@@ -44,15 +44,15 @@ struct IProxy *service_proxy_init(void *buffer, const char *name, void *data) {
     return proxy;
 }
 
-struct ServiceProxy *service_proxy_bind(struct ServiceProxy *serviceProxy, struct IProxy *super) {
-    serviceProxy->super = super;
+struct ServiceProxy *service_proxy_bind(struct ServiceProxy *proxy, struct IProxy *super) {
+    proxy->super = super;
 
-    serviceProxy->list = list;
-    serviceProxy->add = add;
-    serviceProxy->edit = edit;
-    serviceProxy->delete = delete;
-    serviceProxy->help = help;
-    serviceProxy->version = version;
+    proxy->list = list;
+    proxy->add = add;
+    proxy->edit = edit;
+    proxy->delete = delete;
+    proxy->help = help;
+    proxy->version = version;
 
-    return serviceProxy;
+    return proxy;
 }

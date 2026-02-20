@@ -7,8 +7,8 @@
 static void start(const struct Service *self, const int argc, char **argv) {
     if (argc < 2) {
         self->argument->options[self->argument->count].name = "-h";
-        if (self->delegate.callback != NULL)
-            self->delegate.callback(self->delegate.context, self->argument);
+        if (self->delegate.onParse != NULL)
+            self->delegate.onParse(self->delegate.context, self->argument);
         return;
     }
 
@@ -43,8 +43,8 @@ static void start(const struct Service *self, const int argc, char **argv) {
         self->argument->extra = argv[i];
     }
 
-    if (self->delegate.callback != NULL)
-        self->delegate.callback(self->delegate.context, self->argument);
+    if (self->delegate.onParse != NULL)
+        self->delegate.onParse(self->delegate.context, self->argument);
 }
 
 static void result(const struct Service *self, const void *data, const char *type) {
@@ -57,7 +57,7 @@ static void fault(const struct Service *self, enum Status status) {
     fprintf(stderr, "%s\n", status_message(status));
 }
 
-static void setDelegate(struct Service *self, const struct IDelegate delegate) {
+static void setDelegate(struct Service *self, const struct IService delegate) {
     self->delegate = delegate;
 }
 

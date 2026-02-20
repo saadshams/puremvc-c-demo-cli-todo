@@ -7,8 +7,8 @@
 #include <stdio.h>
 
 static void onParse(const void *context, void *data) {
-    const struct IMediator *this = context;
-    const struct INotifier *notifier = this->getNotifier(this);
+    const struct IMediator *self = context;
+    const struct INotifier *notifier = self->getNotifier(self);
     const struct IFacade *facade = notifier->getFacade(notifier);
     facade->sendNotification(facade, SERVICE, data, NULL);
 }
@@ -16,7 +16,7 @@ static void onParse(const void *context, void *data) {
 static void onRegister(struct IMediator *self) {
     struct Service *service = self->getComponent(self);
     // Component receives Mediator via void *context for decoupling
-    service->setDelegate(service, (struct IDelegate){ .context = self, .callback = onParse });
+    service->setDelegate(service, (struct IService){ .context = self, .onParse = onParse });
 }
 
 static const char *const *listNotificationInterests(const struct IMediator *self) {
@@ -40,5 +40,10 @@ struct IMediator *service_mediator_init(void *buffer, const char *name, void *co
     mediator->onRegister = onRegister;
     mediator->listNotificationInterests = listNotificationInterests;
     mediator->handleNotification = handleNotification;
+    return mediator;
+}
+
+struct ServiceMediator *service_mediator_bind(struct ServiceMediator *mediator, struct IMediator *super) {
+    mediator->super = super;
     return mediator;
 }

@@ -31,7 +31,7 @@ int main(const int argc, char **argv) {
         NULL
     };
     struct ProxyMap **proxyMap = (struct ProxyMap *[]) {
-        &(struct ProxyMap){ .proxy = alloca(puremvc_proxy_size()) }, // Proxy: ServiceProxy
+        &(struct ProxyMap){ .proxy = alloca(puremvc_proxy_size()) }, // ServiceProxy
         NULL
     };
     struct IModel *model = puremvc_model_getInstance(modelMap, name);
@@ -42,15 +42,15 @@ int main(const int argc, char **argv) {
         &(struct ViewMap){ .view = alloca(puremvc_view_size()) }, // View instance (Multiton Key)
         NULL
     };
-    struct ObserverMap **observerMap = (struct ObserverMap *[]) { // // Observer lists for notifications
-        &(struct ObserverMap) { .observers = (struct IObserver *[]) { memset(alloca(puremvc_observer_size()), 0, puremvc_observer_size()), NULL } }, // STARTUP Observers
-        &(struct ObserverMap) { .observers = (struct IObserver *[]) { memset(alloca(puremvc_observer_size()), 0, puremvc_observer_size()), NULL } }, // SERVICE Observers
-        &(struct ObserverMap) { .observers = (struct IObserver *[]) { memset(alloca(puremvc_observer_size()), 0, puremvc_observer_size()), NULL } }, // SERVICE_RESULT Observers
-        &(struct ObserverMap) { .observers = (struct IObserver *[]) { memset(alloca(puremvc_observer_size()), 0, puremvc_observer_size()), NULL } }, // SERVICE_FAULT Observers
+    struct ObserverMap **observerMap = (struct ObserverMap *[]) { // ObserverMap for Notifications
+        &(struct ObserverMap) { .observers = (struct IObserver *[]) { memset(alloca(puremvc_observer_size()), 0, puremvc_observer_size()), NULL } }, // STARTUP Notification Observers
+        &(struct ObserverMap) { .observers = (struct IObserver *[]) { memset(alloca(puremvc_observer_size()), 0, puremvc_observer_size()), NULL } }, // SERVICE Notification Observers
+        &(struct ObserverMap) { .observers = (struct IObserver *[]) { memset(alloca(puremvc_observer_size()), 0, puremvc_observer_size()), NULL } }, // SERVICE_RESULT Notification Observers
+        &(struct ObserverMap) { .observers = (struct IObserver *[]) { memset(alloca(puremvc_observer_size()), 0, puremvc_observer_size()), NULL } }, // SERVICE_FAULT Notification Observers
         NULL
     };
     struct MediatorMap **mediatorMap = (struct MediatorMap *[]) {
-        &(struct MediatorMap){ .mediator = alloca(puremvc_mediator_size()) }, // Mediator: ServiceMediator
+        &(struct MediatorMap){ .mediator = alloca(puremvc_mediator_size()) }, // ServiceMediator
         NULL
     };
     struct IView *view = puremvc_view_getInstance(viewMap, name);
@@ -62,12 +62,12 @@ int main(const int argc, char **argv) {
         NULL
     };
     struct CommandMap **commandMap = (struct CommandMap *[]) {
-        &(struct CommandMap){}, // Command: StartupCommand
-        &(struct CommandMap){}, // Command: ServiceCommand
+        &(struct CommandMap){}, // StartupCommand
+        &(struct CommandMap){}, // ServiceCommand
         NULL
     };
     struct IController *controller = puremvc_controller_getInstance(controllerMap, name);
-    controller->initializeController(controller, view, commandMap); // Link Controller with View and Commands
+    controller->initializeController(controller, view, commandMap); // Compose Controller with View and Commands
 
     // 4. Allocate Facade
     struct FacadeMap **facadeMap = (struct FacadeMap *[]) {
