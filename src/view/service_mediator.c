@@ -15,7 +15,8 @@ static void onParse(const void *context, void *data) {
 
 static void onRegister(struct IMediator *self) {
     struct Service *service = self->getComponent(self);
-    service->setDelegate(service, self, onParse); // Component receives Mediator via void *context for decoupling
+    // Component receives Mediator via void *context for decoupling
+    service->setDelegate(service, (struct IDelegate){ .context = self, .callback = onParse });
 }
 
 static const char *const *listNotificationInterests(const struct IMediator *self) {
