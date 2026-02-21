@@ -15,4 +15,4 @@ struct Service {
     void (*setDelegate)(struct Service *self, struct IService delegate);
 };
 
-void service_init(struct Service *service, struct Argument *argument);
+struct Service *service_init(struct Service *self, struct Argument *argument);

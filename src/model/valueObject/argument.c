@@ -14,8 +14,7 @@ static const char *getOption(const struct Argument *self, const char *name) {
     return NULL;
 }
 
-struct Argument *todo_argument_init(void *buffer) {
-    struct Argument *argument = buffer;
-    argument->getOption = getOption;
-    return argument;
+struct Argument *todo_argument_init(struct Argument *self) {
+    self->getOption = getOption;
+    return self;
 }

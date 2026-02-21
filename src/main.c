@@ -81,9 +81,8 @@ int main(const int argc, char **argv) {
     const struct ApplicationFacade *facade = application_facade_bind(&(struct ApplicationFacade){}, super);
 
     // 5. Allocate Service Component
-    struct Service *service = &(struct Service) {}; // Argument Parser, Result and Fault handler
     struct Argument *argument = todo_argument_init(&(struct Argument) {}); // CLI Argument
-    service_init(service, argument);
+    struct Service *service = service_init(&(struct Service){}, argument); // Argument Parser, Result and Fault handler
 
     // 6. PureMVC Apparatus Startup and Link Service Component through ServiceMediator
     facade->startup(facade, service);

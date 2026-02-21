@@ -61,13 +61,13 @@ static void setDelegate(struct Service *self, const struct IService delegate) {
     self->delegate = delegate;
 }
 
-void service_init(struct Service *service, struct Argument *argument) {
-    memset(service, 0, sizeof(*service));
+struct Service *service_init(struct Service *self, struct Argument *argument) {
+    self->start = start;
+    self->result = result;
+    self->fault = fault;
+    self->setDelegate = setDelegate;
 
-    service->argument = argument;
+    self->argument = argument;
 
-    service->start = start;
-    service->result = result;
-    service->fault = fault;
-    service->setDelegate = setDelegate;
+    return self;
 }

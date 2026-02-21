@@ -20,4 +20,4 @@ struct Argument {
     const char *(*getOption)(const struct Argument *self, const char *name);
 };
 
-struct Argument *todo_argument_init(void *buffer);
+struct Argument *todo_argument_init(struct Argument *self);

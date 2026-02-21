@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 
+static void onRegister(struct IProxy *proxy) {}
+
 static enum Status list(const struct ServiceProxy *self, struct Todo todos[], size_t max) {
     return self->storage->list(self->storage, todos, max);
 }
@@ -41,6 +43,7 @@ static const char *version(const struct ServiceProxy *self) {
 
 struct IProxy *service_proxy_init(void *buffer, const char *name, void *data) {
     struct IProxy *proxy = puremvc_proxy_init(buffer, name, data);
+    proxy->onRegister = onRegister;
     return proxy;
 }
 

@@ -1,7 +1,7 @@
 #include "service_mediator.h"
 
 #include "application_facade.h"
-#include "model/enum/status.h"
+#include "view/components/service.h"
 
 #include <string.h>
 #include <stdio.h>
