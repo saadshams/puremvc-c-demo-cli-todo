@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static void start(const struct Service *self, const int argc, char **argv) {
+static void run(const struct Service *self, const int argc, char **argv) {
     if (argc < 2) {
         self->argument->options[self->argument->count].name = "-h";
         if (self->delegate.onParse != NULL)
@@ -62,7 +62,7 @@ static void setDelegate(struct Service *self, const struct IService delegate) {
 }
 
 struct Service *service_init(struct Service *self, struct Argument *argument) {
-    self->start = start;
+    self->run = run;
     self->result = result;
     self->fault = fault;
     self->setDelegate = setDelegate;

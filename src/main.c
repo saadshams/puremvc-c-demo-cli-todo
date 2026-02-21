@@ -87,8 +87,8 @@ int main(const int argc, char **argv) {
     // 6. PureMVC Apparatus Startup and Link Service Component through ServiceMediator
     facade->startup(facade, service);
 
-    // 7. Start Service Component
-    service->start(service, argc, argv); // Execute command parsing & dispatch SERVICE notification
+    // 7. Run Service Component
+    service->run(service, argc, argv); // Execute command parsing & dispatch SERVICE notification
 
     return 0;
 }
