@@ -6,7 +6,7 @@
 
 static void run(const struct Service *self, const int argc, char **argv) {
     if (argc < 2) {
-        self->argument->options[self->argument->count].name = "-h";
+        self->argument->options[self->argument->count].flag = "-h";
         if (self->delegate.onParse != NULL)
             self->delegate.onParse(self->delegate.context, self->argument);
         return;
@@ -26,7 +26,7 @@ static void run(const struct Service *self, const int argc, char **argv) {
 
     while (i < argc && self->argument->count < MAX_OPTIONS) {
         if (argv[i][0] == '-') {
-            self->argument->options[self->argument->count].name = argv[i];
+            self->argument->options[self->argument->count].flag = argv[i];
             if (i + 1 < argc && argv[i + 1][0] != '-' ) {
                 self->argument->options[self->argument->count].value = argv[i + 1];
                 self->argument->count++;

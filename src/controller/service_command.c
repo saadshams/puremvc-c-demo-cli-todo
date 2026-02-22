@@ -27,13 +27,13 @@ static void execute(const struct ICommand *self, struct INotification *notificat
     struct Todo todos[MAX_TODOS] = {0};
     const struct Argument *argument = notification->getBody(notification);
 
-    if (argument->options[0].name != NULL) { // options
-        if (strcmp(argument->options[0].name, "--version") == 0 || strcmp(argument->options[0].name, "-v") == 0) {
+    if (argument->options[0].flag != NULL) { // options
+        if (strcmp(argument->options[0].flag, "--version") == 0 || strcmp(argument->options[0].flag, "-v") == 0) {
             facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->version(proxy), NULL);
             return;
         }
 
-        if (strcmp(argument->options[0].name, "--help") == 0 || strcmp(argument->options[0].name, "-h") == 0) {
+        if (strcmp(argument->options[0].flag, "--help") == 0 || strcmp(argument->options[0].flag, "-h") == 0) {
             facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->help(proxy), NULL);
             return;
         }

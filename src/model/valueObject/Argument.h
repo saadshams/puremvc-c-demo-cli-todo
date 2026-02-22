@@ -9,7 +9,7 @@ struct Argument {
     } command;
 
     struct {
-        const char *name;
+        const char *flag;
         const char *value;
     } options[MAX_OPTIONS];
 
