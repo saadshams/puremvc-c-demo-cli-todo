@@ -8,7 +8,7 @@
 
 static void onParse(const struct IMediator *self, void *data) {
     const struct INotifier *notifier = self->getNotifier(self);
-    const struct IFacade *facade = notifier->getFacade(notifier);
+    const struct IFacade *facade = self->getNotifier(self)->getFacade(self->getNotifier(self));
     facade->sendNotification(facade, SERVICE, data, NULL);
 }
 
