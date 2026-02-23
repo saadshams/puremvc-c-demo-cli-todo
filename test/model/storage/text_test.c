@@ -1,17 +1,29 @@
-#include "todo_text_test.h"
+#include "text_test.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../../include/todo/i_storage.h"
-#include "../../../src/model/storage/todo_text.h"
+#include "todo/i_storage.h"
+#include "model/storage/text.h"
+#include "model/service_proxy.h"
+
+#include "puremvc/i_proxy.h"
 
 static void beforeAll() {}
-static void beforeEach() {}
-static void afterEach() {
-    reset();
+
+static void beforeEach() {
+#ifdef _WIN32
+    const char *command = "copy /Y ..\\..\\src\\todos.txt ..\\todos.txt";
+#else
+    const char *command = "cp ../../src/todos.txt ../todos.txt";
+#endif
+    const int result = system(command);
+    if (result != 0) fprintf(stderr, "Error executing command. Exit code: %d\n", result);
 }
+
+static void afterEach() {}
+
 static void afterAll() {}
 
 static void test(const char *name, void (*callback)()) {
@@ -28,7 +40,7 @@ static void test(const char *name, void (*callback)()) {
 
 int main(void) {
     printf("\n\033[1;36m================================================\033[0m\n");
-    printf("\033[1;36m[SUITE] %s\033[0m\n", "TodoTextTest");
+    printf("\033[1;36m[SUITE] %s\033[0m\n", "TextTest");
     printf("\033[1;36m================================================\033[0m\n\n");
 
     beforeAll();
@@ -43,11 +55,12 @@ int main(void) {
 }
 
 void testList() {
-    const struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
-    storage->add(storage, "Finish homework");
+    struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
+    struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
+    proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../todos.txt");
 
     struct Todo todos[MAX_TODOS] = {0};
-    storage->list(storage, todos, MAX_TODOS);
+    proxy->list(proxy, todos, MAX_TODOS);
 
     const struct Todo expected[] = {
         {1u, "Buy groceries", false},
@@ -66,11 +79,14 @@ void testList() {
 }
 
 void testAdd() {
-    const struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
-    storage->add(storage, "Finish homework");
+    struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
+    struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
+    proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../todos.txt");
+
+    proxy->add(proxy, "Finish homework");
 
     struct Todo todos[MAX_TODOS] = {0};
-    storage->list(storage, todos, MAX_TODOS);
+    proxy->list(proxy, todos, MAX_TODOS);
 
     const struct Todo expected[] = {
         {1u, "Buy groceries", false},
@@ -90,11 +106,14 @@ void testAdd() {
 }
 
 void testEdit() {
-    const struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
-    storage->edit(storage, 2, "Water the garden", true);
+    struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
+    struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
+    proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../todos.txt");
+
+    proxy->edit(proxy, 2, "Water the garden", true);
 
     struct Todo todos[MAX_TODOS] = {0};
-    storage->list(storage, todos, MAX_TODOS);
+    proxy->list(proxy, todos, MAX_TODOS);
 
     const struct Todo expected[] = {
         {1u, "Buy groceries", false},
@@ -113,11 +132,14 @@ void testEdit() {
 }
 
 void testDelete() {
-    const struct IStorage *storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../../todos.txt");
-    storage->delete(storage, 2);
+    struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
+    struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
+    proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../todos.txt");
+
+    proxy->delete(proxy, 2);
 
     struct Todo todos[MAX_TODOS] = {0};
-    storage->list(storage, todos, MAX_TODOS);
+    proxy->list(proxy, todos, MAX_TODOS);
 
     const struct Todo expected[] = {
         {1u, "Buy groceries", false},
@@ -132,17 +154,4 @@ void testDelete() {
         if (strcmp(todos[i].title, expected[i].title) != 0) abort();
         if (todos[i].completed != expected[i].completed) abort();
     }
-}
-
-void reset() {
-    FILE *file = fopen("../../todos.txt", "w");
-    if (file == NULL) return;
-
-    (void) fprintf(file, "1|0|Buy groceries\n");
-    (void) fprintf(file, "2|0|Water the plants\n");
-    (void) fprintf(file, "3|1|Read a book\n");
-    (void) fprintf(file, "4|0|Write a report\n");
-    (void) fprintf(file, "5|1|Watch a movie\n");
-
-    (void) fclose(file);
 }

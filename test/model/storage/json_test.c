@@ -1,17 +1,27 @@
-#include "todo_json_test.h"
+#include "json_test.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../../include/todo/i_storage.h"
-#include "../../../src/model/storage/todo_json.h"
+#include "todo/i_storage.h"
+#include "model/storage/json.h"
+#include "model/service_proxy.h"
 
 static void beforeAll() {}
-static void beforeEach() {}
-static void afterEach() {
-    reset();
+
+static void beforeEach() {
+#ifdef _WIN32
+    const char *command = "copy /Y ..\\..\\src\\todos.json ..\\todos.json";
+#else
+    const char *command = "cp ../../src/todos.json ../todos.json";
+#endif
+    const int result = system(command);
+    if (result != 0) fprintf(stderr, "Error executing command. Exit code: %d\n", result);
 }
+
+static void afterEach() {}
+
 static void afterAll() {}
 
 static void test(const char *name, void (*callback)()) {
@@ -28,7 +38,7 @@ static void test(const char *name, void (*callback)()) {
 
 int main(void) {
     printf("\n\033[1;36m================================================\033[0m\n");
-    printf("\033[1;36m[SUITE] %s\033[0m\n", "TodoJSONTest");
+    printf("\033[1;36m[SUITE] %s\033[0m\n", "JSONTest");
     printf("\033[1;36m================================================\033[0m\n\n");
 
     beforeAll();
@@ -44,10 +54,12 @@ int main(void) {
 }
 
 void testList() {
-    const struct IStorage *storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../../todos.json");
+    struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
+    struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
+    proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json");
 
     struct Todo todos[MAX_TODOS] = {0};
-    storage->list(storage, todos, MAX_TODOS);
+    proxy->list(proxy, todos, MAX_TODOS);
 
     const struct Todo expected[] = {
         {1u, "Buy groceries", false},
@@ -66,11 +78,14 @@ void testList() {
 }
 
 void testAdd() {
-    const struct IStorage *storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../../todos.json");
-    storage->add(storage, "Finish homework");
+    struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
+    struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
+    proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json");
+
+    proxy->add(proxy, "Finish homework");
 
     struct Todo todos[MAX_TODOS] = {0};
-    storage->list(storage, todos, MAX_TODOS);
+    proxy->list(proxy, todos, MAX_TODOS);
 
     const struct Todo expected[] = {
         {1u, "Buy groceries", false},
@@ -90,16 +105,19 @@ void testAdd() {
 }
 
 void testAddMax() {
-    const struct IStorage *storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../../todos.json");
-    if (storage->add(storage, "Finish homework") != OK) abort();
-    if (storage->add(storage, "Call Mom") != OK) abort();
-    if (storage->add(storage, "Exercise") != OK) abort();
-    if (storage->add(storage, "Clean the kitchen") != OK) abort();
-    if (storage->add(storage, "Plan weekend trip") != OK) abort();
-    if (storage->add(storage, "Read emails") != ERR_FULL) abort();
+    struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
+    struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
+    proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json");
+
+    if (proxy->add(proxy, "Finish homework") != OK) abort();
+    if (proxy->add(proxy, "Call Mom") != OK) abort();
+    if (proxy->add(proxy, "Exercise") != OK) abort();
+    if (proxy->add(proxy, "Clean the kitchen") != OK) abort();
+    if (proxy->add(proxy, "Plan weekend trip") != OK) abort();
+    if (proxy->add(proxy, "Read emails") != ERR_FULL) abort();
 
     struct Todo todos[MAX_TODOS] = {0};
-    storage->list(storage, todos, MAX_TODOS);
+    proxy->list(proxy, todos, MAX_TODOS);
 
     const struct Todo expected[] = {
         {1u, "Buy groceries", false},
@@ -123,11 +141,14 @@ void testAddMax() {
 }
 
 void testEdit() {
-    struct IStorage *storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../../todos.json");
-    storage->edit(storage, 2, "Water the garden", true);
+    struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
+    struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
+    proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json");
+
+    proxy->edit(proxy, 2, "Water the garden", true);
 
     struct Todo todos[MAX_TODOS] = {0};
-    storage->list(storage, todos, MAX_TODOS);
+    proxy->list(proxy, todos, MAX_TODOS);
 
     const struct Todo expected[] = {
         {1u, "Buy groceries", false},
@@ -146,11 +167,14 @@ void testEdit() {
 }
 
 void testDelete() {
-    struct IStorage *storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../../todos.json");
-    storage->delete(storage, 2);
+    struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
+    struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
+    proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json");
+
+    proxy->delete(proxy, 2);
 
     struct Todo todos[MAX_TODOS] = {0};
-    storage->list(storage, todos, MAX_TODOS);
+    proxy->list(proxy, todos, MAX_TODOS);
 
     const struct Todo expected[] = {
         {1u, "Buy groceries", false},
@@ -165,19 +189,4 @@ void testDelete() {
         if (strcmp(todos[i].title, expected[i].title) != 0) abort();
         if (todos[i].completed != expected[i].completed) abort();
     }
-}
-
-void reset() {
-    FILE *file = fopen("../../todos.json", "w");
-    if (file == NULL) return;
-
-    (void) fprintf(file, "[\n");
-    (void) fprintf(file, "\t{ \"id\": 1, \"title\": \"Buy groceries\", \"completed\": false },\n");
-    (void) fprintf(file, "\t{ \"id\": 2, \"title\": \"Water the plants\", \"completed\": false },\n");
-    (void) fprintf(file, "\t{ \"id\": 3, \"title\": \"Read a book\", \"completed\": true },\n");
-    (void) fprintf(file, "\t{ \"id\": 4, \"title\": \"Write a report\", \"completed\": false },\n");
-    (void) fprintf(file, "\t{ \"id\": 5, \"title\": \"Watch a movie\", \"completed\": true }\n");
-    (void) fprintf(file, "]\n");
-
-    (void) fclose(file);
 }

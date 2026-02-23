@@ -14,9 +14,8 @@ enum Status {
     ERR_FULL,
 
     /* Infrastructure/Storage Errors (300-399) */
-    ERR_STORAGE_MISSING = 300,
+    ERR_FILE_NOT_FOUND = 300,
     ERR_STORAGE_WRITE,
-    ERR_FILE_NOT_FOUND,
 
     /* Catch-all */
     TODO_ERR_UNKNOWN = 999,

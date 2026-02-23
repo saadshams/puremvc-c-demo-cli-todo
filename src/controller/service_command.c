@@ -3,8 +3,8 @@
 #include "application_facade.h"
 #include "model/service_proxy.h"
 #include "model/valueObject/argument.h"
-#include "model/storage/todo_text.h"
-#include "model/storage/todo_json.h"
+#include "model/storage/text.h"
+#include "model/storage/json.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,59 +12,66 @@
 
 static void execute(const struct ICommand *self, struct INotification *notification) {
 
-    const struct IFacade *facade = self->getNotifier(self)->getFacade(self->getNotifier(self));
+    const struct INotifier *notifier = self->getNotifier(self);
+    const struct IFacade *facade = notifier->getFacade(notifier);
     struct IProxy *super = facade->retrieveProxy(facade, ServiceProxy_NAME);
     struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
 
-    // Strategy Pattern, Dependency Injection
-    const char *type = "json"; // text|json
-    if (strcmp(type, "json") == 0) {
-        proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "./todos.txt");
-    } else {
-        proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "./todos.json");
-    }
-
-    struct Todo todos[MAX_TODOS] = {0};
     const struct Argument *argument = notification->getBody(notification);
-
-    if (argument->options[0].flag != NULL) { // options
-        if (strcmp(argument->options[0].flag, "--version") == 0 || strcmp(argument->options[0].flag, "-v") == 0) {
-            facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->version(proxy), NULL);
-            return;
-        }
-
-        if (strcmp(argument->options[0].flag, "--help") == 0 || strcmp(argument->options[0].flag, "-h") == 0) {
-            facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->help(proxy), NULL);
-            return;
-        }
+    if (argument->getFlag(argument, "--version") || argument->getFlag(argument, "-v")) {
+        facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->version(proxy), NULL);
+        return;
+    }
+    if (argument->getFlag(argument, "--help") || argument->getFlag(argument, "-h")) {
+        facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->help(proxy), NULL);
+        return;
     }
 
-    enum Status status = OK; // main commands
+    enum Status status = ERR_INVALID_ARGS;
+
+    // Strategy Pattern, Dependency Injection
+    const char *path = argument->getFlag(argument, "--file") ? argument->getFlag(argument, "--file") : argument->getFlag(argument, "-f");
+    if (path == NULL) {
+        facade->sendNotification(facade, SERVICE_FAULT, (void *)(intptr_t) ERR_FILE_NOT_FOUND, "");
+        return;
+    }
+
+    const char *extension = strrchr(path, '.'); // Find the last dot
+    const char *strategy = extension && strcmp(extension, ".json") == 0 ? "json" : "text";
+    if (strcmp(strategy, "json") == 0) {
+        proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), path);
+    } else {
+        proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), path);
+    }
+
+    // main commands
+    struct Todo todos[MAX_TODOS] = {0};
     if (strcmp(argument->command.name, "list") == 0) {
         status = proxy->list(proxy, todos, MAX_TODOS);
     } else if (strcmp(argument->command.name, "add") == 0) {
         status = proxy->add(proxy, argument->command.value);
+        if (status == OK) proxy->list(proxy, todos, MAX_TODOS);
     } else if (strcmp(argument->command.name, "edit") == 0) {
         const char *id_str = argument->command.value;
-        const char *completed_str = argument->getOption(argument, "-c") ? argument->getOption(argument, "-c") : argument->getOption(argument, "--completed");
-        const char *title = argument->getOption(argument, "-t") ? argument->getOption(argument, "-t") : argument->getOption(argument, "--title");
+        const char *completed_str = argument->getFlag(argument, "-c") ? argument->getFlag(argument, "-c") : argument->getFlag(argument, "--completed");
+        const char *title = argument->getFlag(argument, "-t") ? argument->getFlag(argument, "-t") : argument->getFlag(argument, "--title");
         const unsigned int id = id_str ? strtoul(id_str, NULL, 10) : 0u;
         const bool completed = completed_str != NULL && strcmp(completed_str, "true") == 0;
 
         status = proxy->edit(proxy, id, title, completed);
+        if (status == OK) proxy->list(proxy, todos, MAX_TODOS);
     } else if (strcmp(argument->command.name, "delete") == 0) {
         const char *id_str = argument->command.value;
         const unsigned int id = id_str ? strtoul(id_str, NULL, 10) : 0u;
 
         status = id == 0 ? ERR_INVALID_ARGS : proxy->delete(proxy, id);
+        if (status == OK) proxy->list(proxy, todos, MAX_TODOS);
     }
 
-    if (status == OK && strcmp(argument->command.name, "list") != 0) {
-        proxy->list(proxy, todos, MAX_TODOS);
-    }
-
-    if (status == OK) {
-        facade->sendNotification(facade, SERVICE_RESULT, todos, strcmp(type, "text") == 0 ? "text" : "json");
+    if (status == ERR_INVALID_ARGS) {
+        facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->help(proxy), NULL);
+    } else if (status == OK) {
+        facade->sendNotification(facade, SERVICE_RESULT, todos, strategy);
     } else {
         facade->sendNotification(facade, SERVICE_FAULT, (void *)(intptr_t) status, "");
     }

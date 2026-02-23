@@ -1,10 +1,10 @@
-add_executable(TodoTextTest model/storage/todo_text_test.c)
-target_link_libraries(TodoTextTest PRIVATE core)
-add_test(NAME Todo.TodoTextTest COMMAND TodoTextTest)
+add_executable(TextTest model/storage/text_test.c)
+target_link_libraries(TextTest PRIVATE core)
+add_test(NAME Todo.TextTest COMMAND TextTest)
 
-add_executable(TodoJSONTest model/storage/todo_json_test.c)
-target_link_libraries(TodoJSONTest PRIVATE core)
-add_test(NAME Todo.TodoJSONTest COMMAND TodoJSONTest)
+add_executable(JSONTest model/storage/json_test.c)
+target_link_libraries(JSONTest PRIVATE core)
+add_test(NAME Todo.JSONTest COMMAND JSONTest)
 
 add_executable(ServiceTest view/components/service_test.c)
 target_link_libraries(ServiceTest PRIVATE core)

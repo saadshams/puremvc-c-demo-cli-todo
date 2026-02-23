@@ -11,15 +11,21 @@ static void beforeAll() {
 #define popen _popen
 #endif
 }
+
 static void beforeEach() {
 #ifdef _WIN32
-    system("copy ..\\..\\todos.txt .");
-    system("copy ..\\..\\todos.json .");
+    const char *command1 = "copy /Y ..\\..\\src\\todos.json ..\\todos.json";
+    const char *command2 = "copy /Y ..\\..\\src\\todos.txt ..\\todos.txt";
 #else
-    system("cp ../../todos.txt .");
-    system("cp ../../todos.json .");
+    const char *command1 = "cp ../../src/todos.json ../todos.json";
+    const char *command2 = "cp ../../src/todos.txt ../todos.txt";
 #endif
+    int result = system(command1);
+    if (result != 0) fprintf(stderr, "Error executing command. Exit code: %d\n", result);
+    result = system(command2);
+    if (result != 0) fprintf(stderr, "Error executing command. Exit code: %d\n", result);
 }
+
 static void afterEach() {}
 static void afterAll() {}
 
@@ -41,7 +47,7 @@ int main(void) {
     printf("\033[1;36m================================================\033[0m\n\n");
 
     beforeAll();
-    test("testList", testList);
+    test("testList",  testList);
     test("testAdd", testAdd);
     test("testEdit", testEdit);
     test("testDelete", testDelete);
@@ -54,15 +60,15 @@ int main(void) {
 #define MAX_OUTPUT 512
 
 void testList() {
-    char output[MAX_OUTPUT];
+    char output[MAX_OUTPUT] = {0};
 
     {
         FILE *pipe = NULL;
         const char *command = NULL;
 #ifdef _WIN32
-        command = "..\\todo.exe list";
+        command = "..\\todo.exe list --file \"..\\todos.txt\"";
 #else
-        command = "../todo list";
+        command = "../todo list --file \"../todos.txt\"";
 #endif
         pipe = popen(command, "r");
         if (!pipe) { perror("popen"); exit(1); }
@@ -72,21 +78,21 @@ void testList() {
         pclose(pipe);
     }
 
-    // printf("[TEST edit] Output:\n%s\n", output);
+    // printf("[TEST list] Output:\n%s\n", output);
     if(strstr(output, "Buy groceries") == NULL) abort();
     if(strstr(output, "Water the plants") == NULL) abort();
 }
 
 void testAdd() {
-    char output[MAX_OUTPUT];
+    char output[MAX_OUTPUT] = {0};
 
     {
         FILE *pipe = NULL;
         const char *command = NULL;
 #ifdef _WIN32
-        command = "..\\todo.exe add \"Buy Milk\" --completed true";
+        command = "..\\todo.exe add \"Buy Milk\" --completed true --file \"..\\todos.txt\"";
 #else
-        command = "../todo add \"Buy Milk\" --completed true";
+        command = "../todo add \"Buy Milk\" --completed true --file \"../todos.txt\"";
 #endif
         pipe = popen(command, "r");
         if (!pipe) { perror("popen"); exit(1); }
@@ -98,9 +104,9 @@ void testAdd() {
         FILE *pipe = NULL;
         const char *command = NULL;
 #ifdef _WIN32
-        command = "..\\todo.exe list";
+        command = "..\\todo.exe list --file \"..\\todos.txt\"";
 #else
-        command = "../todo list";
+        command = "../todo list --file \"../todos.txt\"";
 #endif
         pipe = popen(command, "r");
         if (!pipe) { perror("popen"); exit(1); }
@@ -110,20 +116,20 @@ void testAdd() {
         pclose(pipe);
     }
 
-    // printf("[TEST edit] Output:\n%s\n", output);
+    // printf("[TEST add] Output:\n%s\n", output);
     if(strstr(output, "Buy Milk") == NULL) abort();
 }
 
 void testEdit() {
-    char output[MAX_OUTPUT];
+    char output[MAX_OUTPUT] = {0};
 
     {
         FILE *pipe = NULL;
         const char *command = NULL;
 #ifdef _WIN32
-        command = "..\\todo.exe edit 2 -t \"Water the plants - edited\" --completed true";
+        command = "..\\todo.exe edit 2 -t \"Water the plants - edited\" --completed true --file \"..\\todos.txt\"";
 #else
-        command = "../todo edit 2 -t \"Water the plants - edited\" --completed true";
+        command = "../todo edit 2 -t \"Water the plants - edited\" --completed true --file \"../todos.txt\"";
 #endif
         pipe = popen(command, "r");
         if (!pipe) { perror("popen"); exit(1); }
@@ -135,9 +141,9 @@ void testEdit() {
         FILE *pipe = NULL;
         const char *command = NULL;
 #ifdef _WIN32
-        command = "..\\todo.exe list";
+        command = "..\\todo.exe list --file \"..\\todos.txt\"";
 #else
-        command = "../todo list";
+        command = "../todo list --file \"../todos.txt\"";
 #endif
         pipe = popen(command, "r");
         if (!pipe) { perror("popen"); exit(1); }
@@ -152,15 +158,15 @@ void testEdit() {
 }
 
 void testDelete() {
-    char output[MAX_OUTPUT];
+    char output[MAX_OUTPUT] = {0};
 
     {
         FILE *pipe = NULL;
         const char *command = NULL;
 #ifdef _WIN32
-        command = "..\\todo.exe delete 1";
+        command = "..\\todo.exe delete 1 --file \"..\\todos.txt\"";
 #else
-        command = "../todo delete 1";
+        command = "../todo delete 1 --file \"../todos.txt\"";
 #endif
         pipe = popen(command, "r");
         if (!pipe) { perror("popen"); exit(1); }
@@ -172,9 +178,9 @@ void testDelete() {
         FILE *pipe = NULL;
         const char *command = NULL;
 #ifdef _WIN32
-        command = "..\\todo.exe list";
+        command = "..\\todo.exe list --file \"..\\todos.txt\"";
 #else
-        command = "../todo list";
+        command = "../todo list --file \"../todos.txt\"";
 #endif
         pipe = popen(command, "r");
         if (!pipe) { perror("popen"); exit(1); }

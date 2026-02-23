@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../../src/view/components/service.h"
+#include "view/components/service.h"
 
 static void beforeAll() {}
 static void beforeEach() {}

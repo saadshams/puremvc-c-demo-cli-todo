@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-static const char *getOption(const struct Argument *self, const char *name) {
+static const char *getFlag(const struct Argument *self, const char *name) {
     if (name == NULL) return NULL;
 
     for (int i = 0; i < self->count; i++) { // search
@@ -15,6 +15,6 @@ static const char *getOption(const struct Argument *self, const char *name) {
 }
 
 struct Argument *todo_argument_init(struct Argument *self) {
-    self->getOption = getOption;
+    self->getFlag = getFlag;
     return self;
 }
