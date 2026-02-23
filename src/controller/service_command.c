@@ -29,15 +29,16 @@ static void execute(const struct ICommand *self, struct INotification *notificat
 
     enum Status status = ERR_INVALID_ARGS;
 
-    // Strategy Pattern, Dependency Injection
     const char *path = argument->getFlag(argument, "--file") ? argument->getFlag(argument, "--file") : argument->getFlag(argument, "-f");
     if (path == NULL) {
         facade->sendNotification(facade, SERVICE_FAULT, (void *)(intptr_t) ERR_FILE_NOT_FOUND, "");
         return;
     }
 
-    const char *extension = strrchr(path, '.'); // Find the last dot
+    const char *extension = strrchr(path, '.');
     const char *strategy = extension && strcmp(extension, ".json") == 0 ? "json" : "text";
+
+    // Strategy Pattern, Dependency Injection
     if (strcmp(strategy, "json") == 0) {
         proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), path);
     } else {
@@ -68,6 +69,7 @@ static void execute(const struct ICommand *self, struct INotification *notificat
         if (status == OK) proxy->list(proxy, todos, MAX_TODOS);
     }
 
+    // result/fault
     if (status == ERR_INVALID_ARGS) {
         facade->sendNotification(facade, SERVICE_RESULT, (void *) proxy->help(proxy), NULL);
     } else if (status == OK) {
