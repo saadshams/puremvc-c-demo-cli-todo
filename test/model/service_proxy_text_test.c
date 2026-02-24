@@ -1,20 +1,22 @@
-#include "json_test.h"
+#include "service_proxy_text_test.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "todo/i_storage.h"
-#include "model/storage/json.h"
+#include "model/storage/text.h"
 #include "model/service_proxy.h"
+
+#include "puremvc/i_proxy.h"
 
 static void beforeAll() {}
 
 static void beforeEach() {
 #ifdef _WIN32
-    const char *command = "copy /Y ..\\..\\src\\todos.json ..\\todos.json";
+    const char *command = "copy /Y ..\\..\\src\\todos.txt ..\\todos.txt";
 #else
-    const char *command = "cp ../../src/todos.json ../todos.json";
+    const char *command = "cp ../../src/todos.txt ../todos.txt";
 #endif
     const int result = system(command);
     if (result != 0) fprintf(stderr, "Error executing command. Exit code: %d\n", result);
@@ -38,13 +40,12 @@ static void test(const char *name, void (*callback)()) {
 
 int main(void) {
     printf("\n\033[1;36m================================================\033[0m\n");
-    printf("\033[1;36m[SUITE] %s\033[0m\n", "JSONTest");
+    printf("\033[1;36m[SUITE] %s\033[0m\n", "TextTest");
     printf("\033[1;36m================================================\033[0m\n\n");
 
     beforeAll();
     test("testList", testList);
     test("testAdd", testAdd);
-    test("testAddMax", testAddMax);
     test("testEdit", testEdit);
     test("testDelete", testDelete);
     afterAll();
@@ -56,7 +57,7 @@ int main(void) {
 void testList() {
     struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
     struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
-    proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json");
+    proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../todos.txt");
 
     struct Todo todos[MAX_TODOS] = {0};
     proxy->list(proxy, todos, MAX_TODOS);
@@ -80,7 +81,7 @@ void testList() {
 void testAdd() {
     struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
     struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
-    proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json");
+    proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../todos.txt");
 
     proxy->add(proxy, "Finish homework");
 
@@ -104,46 +105,10 @@ void testAdd() {
     }
 }
 
-void testAddMax() {
-    struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
-    struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
-    proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json");
-
-    if (proxy->add(proxy, "Finish homework") != OK) abort();
-    if (proxy->add(proxy, "Call Mom") != OK) abort();
-    if (proxy->add(proxy, "Exercise") != OK) abort();
-    if (proxy->add(proxy, "Clean the kitchen") != OK) abort();
-    if (proxy->add(proxy, "Plan weekend trip") != OK) abort();
-    if (proxy->add(proxy, "Read emails") != ERR_FULL) abort();
-
-    struct Todo todos[MAX_TODOS] = {0};
-    proxy->list(proxy, todos, MAX_TODOS);
-
-    const struct Todo expected[] = {
-        {1u, "Buy groceries", false},
-        {2u, "Water the plants", false},
-        {3u, "Read a book", true},
-        {4u, "Write a report", false},
-        {5u, "Watch a movie", true},
-        {6u, "Finish homework", false},
-        {7u, "Call Mom", false},
-        {8u, "Exercise", false},
-        {9u, "Clean the kitchen", false},
-        {10u, "Plan weekend trip", false},
-    };
-
-    const size_t count = sizeof(expected) / sizeof(expected[0]);
-    for (size_t i = 0; i < count; i++) {
-        if (todos[i].id != expected[i].id) abort();
-        if (strcmp(todos[i].title, expected[i].title) != 0) abort();
-        if (todos[i].completed != expected[i].completed) abort();
-    }
-}
-
 void testEdit() {
     struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
     struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
-    proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json");
+    proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../todos.txt");
 
     proxy->edit(proxy, 2, "Water the garden", true);
 
@@ -169,7 +134,7 @@ void testEdit() {
 void testDelete() {
     struct IProxy *super = puremvc_proxy_init(alloca(puremvc_proxy_size()), NULL, NULL);
     struct ServiceProxy *proxy = service_proxy_bind(&(struct ServiceProxy){}, super);
-    proxy->storage = todo_json_storage_init(alloca(todo_json_storage_size()), "../todos.json");
+    proxy->storage = todo_text_storage_init(alloca(todo_text_storage_size()), "../todos.txt");
 
     proxy->delete(proxy, 2);
 

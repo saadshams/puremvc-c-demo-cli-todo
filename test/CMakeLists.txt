@@ -1,10 +1,10 @@
-add_executable(TextTest model/storage/text_test.c)
-target_link_libraries(TextTest PRIVATE core)
-add_test(NAME Todo.TextTest COMMAND TextTest)
+add_executable(ServiceProxyTextTest model/service_proxy_text_test.c)
+target_link_libraries(ServiceProxyTextTest PRIVATE core)
+add_test(NAME Todo.ServiceProxyTextTest COMMAND ServiceProxyTextTest)
 
-add_executable(JSONTest model/storage/json_test.c)
-target_link_libraries(JSONTest PRIVATE core)
-add_test(NAME Todo.JSONTest COMMAND JSONTest)
+add_executable(ServiceProxyJSONTest model/service_proxy_json_test.c)
+target_link_libraries(ServiceProxyJSONTest PRIVATE core)
+add_test(NAME Todo.ServiceProxyJSONTest COMMAND ServiceProxyJSONTest)
 
 add_executable(ServiceTest view/components/service_test.c)
 target_link_libraries(ServiceTest PRIVATE core)
