@@ -1,4 +1,4 @@
-## [PureMVC](http://puremvc.github.com/) [C](https://github.com/PureMVC/puremvc-c-multicore-framework) Demo - Todo Command Line Interface Utility
+## [PureMVC](http://puremvc.org) [C](https://github.com/PureMVC/puremvc-c-multicore-framework) Demo - Todo Command Line Interface Utility
 
 This demo illustrates techniques for performing routine maintenance operations using the PureMVC framework in a C command-line environment. It demonstrates the separation of concerns between business logic, data persistence, and user notification.
 
