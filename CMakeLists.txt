@@ -4,18 +4,19 @@ project(todo C)
 set(CMAKE_C_STANDARD 11)
 
 # Dependencies External Subprojects
-add_subdirectory("../puremvc-c-multicore-framework2" puremvc)
+add_subdirectory("../puremvc-c-multicore-framework3" puremvc)
 
 add_library(core
         src/application_facade.c
         src/controller/startup_command.c
         src/controller/service_command.c
-        src/model/service_proxy.c
+        src/model/data/json.c
+        src/model/data/plain.c
+        src/model/data/storage.c
         src/model/enum/status.c
-        src/model/storage/text.c
-        src/model/storage/json.c
         src/model/valueObject/argument.c
         src/model/valueObject/todo.c
+        src/model/service_proxy.c
         src/view/service_mediator.c
         src/view/components/service.c)
 
@@ -41,6 +42,3 @@ if (TODO_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
 endif ()
-
-message(STATUS "PROJECT_IS_TOP_LEVEL = ${PROJECT_IS_TOP_LEVEL}")
-message(STATUS "TODO_BUILD_TESTS = ${TODO_BUILD_TESTS}")

@@ -8,6 +8,6 @@ struct ServiceMediator {
     struct IMediator *super;
 };
 
-struct IMediator *service_mediator_init(void *buffer, const char *name, void *component);
+struct IMediator *service_mediator_new(void *component);
 
-struct ServiceMediator *service_mediator_bind(struct ServiceMediator *mediator, struct IMediator *super);
+struct ServiceMediator *service_mediator_extend(struct ServiceMediator *mediator, struct IMediator *super);

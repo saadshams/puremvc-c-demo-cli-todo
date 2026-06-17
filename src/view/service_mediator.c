@@ -8,13 +8,15 @@
 
 static void onParse(const struct IMediator *self, void *data) {
     const struct INotifier *notifier = self->getNotifier(self);
-    const struct IFacade *facade = self->getNotifier(self)->getFacade(self->getNotifier(self));
+    const struct IFacade *facade = notifier->getFacade(notifier);
     facade->sendNotification(facade, SERVICE, data, NULL);
 }
 
 static void onRegister(struct IMediator *self) {
     struct Service *service = self->getComponent(self);
-    // Component receives Mediator via void *context for decoupling
+    // Register this Mediator as the service callback target.
+    // The service stores the Mediator in the generic context pointer (void *)
+    // to maintain loose coupling between the Service and Mediator.
     service->setDelegate(service, (struct IService){ .context = self, .onParse = (void (*) (void *, void *)) onParse });
 }
 
@@ -30,19 +32,19 @@ static void handleNotification(const struct IMediator *self, struct INotificatio
     } else if (strcmp(notification->getName(notification), SERVICE_FAULT) == 0) {
         service->fault(service, (enum Status)(intptr_t) notification->getBody(notification));
     } else {
-        printf("%s\n", "[CLIDemo::ServiceMediator::handleNotification] Error: Unknown notification.");
+        fprintf(stderr, "\033[0;31m[Todo::ServiceMediator::handleNotification] ERROR: Unknown notification.\033[0m\n");
     }
 }
 
-struct IMediator *service_mediator_init(void *buffer, const char *name, void *component) {
-    struct IMediator *mediator = puremvc_mediator_init(buffer, name, component);
+struct IMediator *service_mediator_new(void *component) {
+    struct IMediator *mediator = puremvc_mediator_new(ServiceMediator_NAME, component);
     mediator->onRegister = onRegister;
     mediator->listNotificationInterests = listNotificationInterests;
     mediator->handleNotification = handleNotification;
     return mediator;
 }
 
-struct ServiceMediator *service_mediator_bind(struct ServiceMediator *mediator, struct IMediator *super) {
+struct ServiceMediator *service_mediator_extend(struct ServiceMediator *mediator, struct IMediator *super) {
     mediator->super = super;
     return mediator;
 }

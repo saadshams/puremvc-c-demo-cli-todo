@@ -17,7 +17,8 @@ struct Argument {
 
     const char *extra; // extra argument
 
+    void (*parse)(struct Argument *self, int argc, char **argv);
     const char *(*getFlag)(const struct Argument *self, const char *name);
 };
 
-struct Argument *todo_argument_init(struct Argument *self);
+struct Argument *argument_new(int argc, char **arg);

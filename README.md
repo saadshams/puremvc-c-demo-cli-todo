@@ -36,7 +36,7 @@ todo -h
 * [Make](https://www.gnu.org/software/make/)
 
 ## License
-* PureMVC Javascript Demo - Employee Admin - Copyright © 2026 [Saad Shams](https://www.linkedin.com/in/muizz)
+* PureMVC C Demo - Employee Admin - Copyright © 2026 [Saad Shams](https://www.linkedin.com/in/muizz)
 * PureMVC - Copyright © 2026 Futurescale, Inc.
 * All rights reserved.
 

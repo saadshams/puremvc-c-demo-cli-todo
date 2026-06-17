@@ -1,85 +1,42 @@
 #include "service_proxy.h"
-#include "../../include/todo/i_storage.h"
+
+#include "data/storage.h"
 #include "application_facade.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static void onRegister(struct IProxy *proxy) {}
 
+static void onRemove(struct IProxy *proxy) {}
+
 static enum Status list(const struct ServiceProxy *self, struct Todo todos[], size_t max) {
-    return self->storage->read(self->storage, todos, max);
+    return self->storage->list(self->storage, todos, max);
 }
 
-static enum Status add(const struct ServiceProxy *self, const char *title) {
-    struct Todo todos[MAX_TODOS] = {0};
-    const enum Status status = self->storage->read(self->storage, todos, MAX_TODOS);
-    if (status != OK) return status;
-
-    size_t count = 0;
-    for (size_t i = 0; i < MAX_TODOS; i++) {
-        if (todos[i].id == 0) break;
-        count++;
-    }
-    if (count >= MAX_TODOS) return ERR_FULL;
-
-    struct Todo *todo = &todos[count];
-    todo->id = todos[count - 1].id + 1;
-    strncpy(todo->title, title, TODO_TITLE_MAX - 1);
-    todo->title[TODO_TITLE_MAX - 1] = '\0';
-    todo->completed = false;
-
-    return self->storage->write(self->storage, todos);
+static enum Status add(const struct ServiceProxy *self, const struct Argument *argument) {
+    const char *title = argument->command.value;
+    return self->storage->add(self->storage, title);
 }
 
-static enum Status edit(const struct ServiceProxy *self, uint32_t id, const char *title, const bool completed) {
-    struct Todo todos[MAX_TODOS] = {0};
-    const enum Status status = self->storage->read(self->storage, todos, MAX_TODOS);
-    if (status != OK) return status;
+static enum Status edit(const struct ServiceProxy *self, const struct Argument *argument) {
+    const char *id_str = argument->command.value;
+    const unsigned int id = id_str ? strtoul(id_str, NULL, 10) : 0u;
 
-    bool found = false;
-    for (size_t i = 0u; todos[i].id != 0; i++) {
-        if (todos[i].id == id) {
-            if (title != NULL) {
-                strncpy(todos[i].title, title, TODO_TITLE_MAX - 1);
-                todos[i].title[TODO_TITLE_MAX - 1] = '\0';
-            }
-            todos[i].completed = completed;
-            found = true;
-            break;
-        }
-    }
+    const char *title = argument->getFlag(argument, "-t") ? argument->getFlag(argument, "-t") : argument->getFlag(argument, "--title");
 
-    if (found == false) return ERR_NOT_FOUND;
+    const char *completed_str = argument->getFlag(argument, "-c") ? argument->getFlag(argument, "-c") : argument->getFlag(argument, "--completed");
+    const bool completed = completed_str != NULL && strcmp(completed_str, "true") == 0;
 
-    return self->storage->write(self->storage, todos);
+    return self->storage->edit(self->storage, id, title, completed);
 }
 
-static enum Status delete(const struct ServiceProxy *self, const uint32_t id) {
-    struct Todo todos[MAX_TODOS] = {0};
-    const enum Status status = self->storage->read(self->storage, todos, MAX_TODOS);
-    if (status != OK) return status;
+static enum Status delete(const struct ServiceProxy *self, const struct Argument *argument) {
+    const char *id_str = argument->command.value;
+    const unsigned int id = id_str ? strtoul(id_str, NULL, 10) : 0u;
 
-    bool found = false;
-    size_t index = 0u;
-
-    for (size_t i = 0u; todos[i].id != 0; i++) {
-        if (todos[i].id == id) {
-            found = true;
-        } else {
-            if (index != i) {
-                todos[index] = todos[i]; /* shift left */
-            }
-            index++;
-        }
-    }
-    todos[index].id = 0;
-    memset(todos[index].title, 0, sizeof(todos[index].title));
-    todos[index].completed = false;
-
-    if (found == false) return ERR_NOT_FOUND;
-
-    return self->storage->write(self->storage, todos);
+    return id == 0 ? ERR_INVALID_ARGS : self->storage->delete(self->storage, id);
 }
 
 static const char *help(const struct ServiceProxy *self) {
@@ -101,13 +58,14 @@ static const char *version(const struct ServiceProxy *self) {
     return buffer;
 }
 
-struct IProxy *service_proxy_init(void *buffer, const char *name, void *data) {
-    struct IProxy *proxy = puremvc_proxy_init(buffer, name, data);
+struct IProxy *service_proxy_new() {
+    struct IProxy *proxy = puremvc_proxy_new(ServiceProxy_NAME, NULL);
     proxy->onRegister = onRegister;
+    proxy->onRemove = onRemove;
     return proxy;
 }
 
-struct ServiceProxy *service_proxy_bind(struct ServiceProxy *proxy, struct IProxy *super) {
+struct ServiceProxy *service_proxy_extend(struct ServiceProxy *proxy, struct IProxy *super) {
     proxy->super = super;
 
     proxy->list = list;

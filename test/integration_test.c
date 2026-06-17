@@ -59,7 +59,7 @@ int main(void) {
 
 #define MAX_OUTPUT 512
 
-void testList() {
+void testList(void) {
     char output[MAX_OUTPUT] = {0};
 
     {
@@ -83,7 +83,7 @@ void testList() {
     if(strstr(output, "Water the plants") == NULL) abort();
 }
 
-void testAdd() {
+void testAdd(void) {
     char output[MAX_OUTPUT] = {0};
 
     {
@@ -120,7 +120,7 @@ void testAdd() {
     if(strstr(output, "Buy Milk") == NULL) abort();
 }
 
-void testEdit() {
+void testEdit(void) {
     char output[MAX_OUTPUT] = {0};
 
     {
@@ -157,7 +157,7 @@ void testEdit() {
     if(strstr(output, "Water the plants - edited") == NULL) abort();
 }
 
-void testDelete() {
+void testDelete(void) {
     char output[MAX_OUTPUT] = {0};
 
     {

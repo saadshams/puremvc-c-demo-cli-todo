@@ -6,15 +6,16 @@
 #include "view/service_mediator.h"
 
 static void execute(const struct ICommand *self, struct INotification *notification) {
-    const struct IFacade *facade = self->getNotifier(self)->getFacade(self->getNotifier(self));
+    const struct INotifier *notifier = self->getNotifier(self);
+    const struct IFacade *facade = notifier->getFacade(notifier);
 
-    facade->registerCommand(facade, SERVICE, service_command_init);
-    facade->registerProxy(facade, service_proxy_init, ServiceProxy_NAME, NULL);
-    facade->registerMediator(facade, service_mediator_init, ServiceMediator_NAME, notification->getBody(notification));
+    facade->registerCommand(facade, SERVICE, service_command_new);
+    facade->registerProxy(facade, service_proxy_new());
+    facade->registerMediator(facade, service_mediator_new(notification->getBody(notification)));
 }
 
-struct ICommand *startup_command_init(void *buffer) {
-    struct ICommand *command = puremvc_simple_command_init(buffer);
+struct ICommand *startup_command_new(void) {
+    struct ICommand *command = puremvc_command_new();
     command->execute = execute; // override
     return command;
 }

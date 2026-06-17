@@ -9,3 +9,7 @@ struct IStorage {
     enum Status (*read)(const struct IStorage *self, struct Todo todos[], size_t max);
     enum Status (*write)(const struct IStorage *self, const struct Todo todos[]);
 };
+
+struct IStorage *json_new(const char *path);
+
+struct IStorage *plain_new(const char *path);

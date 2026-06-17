@@ -1,55 +1,19 @@
 #include "service.h"
+
 #include "model/valueObject/todo.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-static void run(const struct Service *self, const int argc, char **argv) {
-    if (argc < 2) {
-        self->argument->options[self->argument->count].flag = "-h";
-        if (self->delegate.onParse != NULL)
-            self->delegate.onParse(self->delegate.context, self->argument);
-        return;
-    }
-
-    int i = 1;
-
-    if (i < argc && argv[i][0] != '-') {
-        self->argument->command.name = argv[i];
-        i++;
-    }
-
-    if (i < argc && argv[i][0] != '-') {
-        self->argument->command.value = argv[i];
-        i++;
-    }
-
-    while (i < argc && self->argument->count < MAX_OPTIONS) {
-        if (argv[i][0] == '-') {
-            self->argument->options[self->argument->count].flag = argv[i];
-            if (i + 1 < argc && argv[i + 1][0] != '-' ) {
-                self->argument->options[self->argument->count].value = argv[i + 1];
-                self->argument->count++;
-                i += 2;
-            } else {
-                self->argument->options[self->argument->count].value = "true";
-                self->argument->count++;
-                i += 1;
-            }
-        }
-    }
-
-    if (i < argc) {
-        self->argument->extra = argv[i];
-    }
-
+static void run(const struct Service *self, struct Argument *argument) {
     if (self->delegate.onParse != NULL)
-        self->delegate.onParse(self->delegate.context, self->argument);
+        self->delegate.onParse(self->delegate.context, argument);
 }
 
-static void result(const struct Service *self, const void *data, const char *type) {
+static void result(const struct Service *self, const void *data, const char *path) {
     (void) self;
-    type[0] != '\0' ? todo_print(data, type) : printf("%s\n", (char *) data);
+    path[0] != '\0' ? todo_print(data, path) : printf("%s\n", (char *) data);
 }
 
 static void fault(const struct Service *self, enum Status status) {
@@ -61,13 +25,34 @@ static void setDelegate(struct Service *self, const struct IService delegate) {
     self->delegate = delegate;
 }
 
-struct Service *service_init(struct Service *self, struct Argument *argument) {
-    self->run = run;
-    self->result = result;
-    self->fault = fault;
-    self->setDelegate = setDelegate;
+static size_t size(void) {
+    return (sizeof(struct Service) + (sizeof(void *) - 1u)) & ~(sizeof(void *) - 1u);
+}
 
-    self->argument = argument;
+static struct Service *alloc() {
+    struct Service *service = malloc(size());
 
-    return self;
+    if (service == NULL) {
+        fprintf(stderr, "\033[0;31m[Todo::Service::alloc] ERROR: Instance allocation failed.\033[0m\n");
+        return NULL;
+    }
+
+    return service;
+}
+
+static struct Service *init(struct Service *this) {
+    if (this == NULL) return NULL;
+
+    memset(this, 0, size());
+
+    this->run = run;
+    this->result = result;
+    this->fault = fault;
+    this->setDelegate = setDelegate;
+
+    return this;
+}
+
+struct Service *service_new() {
+    return init(alloc());
 }

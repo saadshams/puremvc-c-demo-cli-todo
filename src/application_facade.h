@@ -16,6 +16,6 @@ struct ApplicationFacade {
     void (*startup)(const struct ApplicationFacade *self, struct Service *service);
 };
 
-struct IFacade *application_facade_getInstance(struct FacadeMap **facadeMap, const char *key);
+struct IFacade *application_facade_getInstance(const char *key);
 
-struct ApplicationFacade *application_facade_bind(struct ApplicationFacade *facade, struct IFacade *super);
+struct ApplicationFacade *application_facade_extend(struct ApplicationFacade *facade, struct IFacade *super);

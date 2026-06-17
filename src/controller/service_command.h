@@ -2,4 +2,4 @@
 
 #include <puremvc/puremvc.h>
 
-struct ICommand *service_command_init(void *buffer);
+struct ICommand *service_command_new(void);

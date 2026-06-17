@@ -12,4 +12,4 @@ struct Todo {
     bool completed;
 };
 
-void todo_print(const struct Todo todos[], const char *type);
+void todo_print(const struct Todo todos[], const char *path);

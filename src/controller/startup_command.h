@@ -2,4 +2,4 @@
 
 #include <puremvc/puremvc.h>
 
-struct ICommand *startup_command_init(void *buffer);
+struct ICommand *startup_command_new(void);
